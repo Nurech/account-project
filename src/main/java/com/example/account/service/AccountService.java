@@ -1,44 +1,78 @@
 package com.example.account.service;
 
 import com.example.account.dto.AccountCreationRequest;
-import com.example.account.dto.AccountResponse;
+import com.example.account.dto.AccountCreationResponse;
+import com.example.account.dto.AccountGetRequest;
+import com.example.account.dto.AccountGetResponse;
+import com.example.account.exception.exceptions.BusinessException;
+import com.example.account.exception.exceptions.ErrorCode;
 import com.example.account.model.Account;
+import com.example.account.model.Balance;
 import com.example.account.mappers.AccountMapper;
 import com.example.account.publisher.AccountMessagePublisher;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@RequiredArgsConstructor
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.example.account.exception.exceptions.ErrorCode.INVALID_CURRENCY;
+
 @Service
+@RequiredArgsConstructor
 public class AccountService {
+
     private final AccountMapper accountMapper;
     private final AccountMessagePublisher accountMessagePublisher;
-    private final ObjectMapper objectMapper;
 
     @Transactional
-    public AccountResponse createAccount(AccountCreationRequest request) throws JsonProcessingException {
-        // Map the request DTO to the Account model
+    public AccountCreationResponse createAccount(AccountCreationRequest request) {
+
+        // Allow account creation only for valid currencies
+        validateCurrencies(request.getCurrencies());
+
         Account account = new Account();
         account.setCustomerId(request.getCustomerId());
         account.setCountry(request.getCountry());
-
-        // Insert the account into the database
         accountMapper.insertAccount(account);
 
-        // TODO: Create balances and insert them too
+        List<Balance> balances = new ArrayList<>();
+        for (String currency : request.getCurrencies()) {
+            Balance balance = new Balance();
+            balance.setAccountId(account.getId());
+            balance.setCurrency(currency);
+            balance.setAvailableAmount(BigDecimal.ZERO);
+            accountMapper.insertBalance(balance);
+            balances.add(balance);
+        }
 
-        // Convert account to JSON before publishing
-        String accountJson = objectMapper.writeValueAsString(account);
-        accountMessagePublisher.publishAccountCreated(accountJson);
+        // Publish an event to RabbitMQ
+        accountMessagePublisher.publishAccountCreated(account);
 
-        // Convert to AccountResponse DTO
-        AccountResponse response = new AccountResponse();
-        response.setAccountId(account.getId());
-        response.setCustomerId(account.getCustomerId());
+        return new AccountCreationResponse(account.getId(), account.getCustomerId(), balances);
+    }
 
-        return response;
+    private void validateCurrencies(List<String> currencies) {
+        List<String> allowedCurrencies = accountMapper.findAllowedCurrencies();
+        for (String currency : currencies) {
+            if (!allowedCurrencies.contains(currency)) {
+                throw new BusinessException(INVALID_CURRENCY, currency);
+            }
+        }
+    }
+
+
+    @Transactional(readOnly = true)
+    public AccountGetResponse getAccount(AccountGetRequest request) {
+        Long accountId = request.getAccountId();
+        Account account = accountMapper.findAccountById(accountId);
+        if (account == null) {
+            throw new BusinessException(ErrorCode.ACCOUNT_NOT_FOUND, "Account with ID " + accountId + " not found.");
+        }
+
+        List<Balance> balances = accountMapper.findBalancesByAccountId(accountId);
+        return new AccountGetResponse(account.getId(), account.getCustomerId(), balances);
     }
 }
