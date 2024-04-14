@@ -1,0 +1,10 @@
+FROM openjdk:17-jdk-slim AS build
+WORKDIR /build
+COPY . .
+RUN chmod +x ./gradlew
+RUN ./gradlew clean build -x test
+
+FROM openjdk:17-jdk-slim
+WORKDIR /app
+COPY --from=build /build/common/build/libs/common-*.jar ./common.jar
+ENTRYPOINT ["java", "-jar", "common.jar"]

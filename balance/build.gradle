@@ -1,0 +1,19 @@
+description = 'Balance Application'
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '17'
+}
+
+repositories {
+	mavenCentral()
+}
+
+ext {
+	set('springCloudVersion', "2023.0.1")
+}
+
+dependencies {
+	implementation project(':common')
+}

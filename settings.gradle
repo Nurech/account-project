@@ -1,1 +1,5 @@
-rootProject.name = 'account'
+rootProject.name = 'account-project'
+include ':common'
+include ':account'
+include ':transaction'
+include ':balance'

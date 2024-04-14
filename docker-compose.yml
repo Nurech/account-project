@@ -1,13 +1,14 @@
 version: '3.8'
+
 services:
   postgres:
-    image: postgres:13 # Specific version instead of 'latest'
+    image: postgres:13
     environment:
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5430:5432" # Map to the correct internal Postgres port
+      - "5430:5432"
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -15,15 +16,31 @@ services:
       - "5672:5672"
       - "15672:15672"
 
-#  app:
-#    build: .
-#    depends_on:
-#      - postgres
-#      - rabbitmq
-#    environment:
-#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres/yourdatabase
-#      SPRING_DATASOURCE_USERNAME: youruser
-#      SPRING_DATASOURCE_PASSWORD: yourpassword
-#      SPRING_RABBITMQ_HOST: rabbitmq
-#    ports:
-#      - "8080:8080"
+  common:
+    build:
+      context: .
+      dockerfile: Dockerfile-common
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  transaction:
+    build:
+      context: .
+      dockerfile: Dockerfile-transaction
+    depends_on:
+      - common
+
+  balance:
+    build:
+      context: .
+      dockerfile: Dockerfile-balance
+    depends_on:
+      - common
+
+  account:
+    build:
+      context: .
+      dockerfile: Dockerfile-account
+    depends_on:
+      - common
