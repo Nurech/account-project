@@ -7,4 +7,5 @@ RUN ./gradlew clean build -x test
 FROM openjdk:17-jdk-slim
 WORKDIR /app
 COPY --from=build /build/common/build/libs/common-*.jar ./common.jar
+EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "common.jar"]

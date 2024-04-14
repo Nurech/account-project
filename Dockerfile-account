@@ -7,4 +7,5 @@ RUN ./gradlew clean build -x test
 FROM openjdk:17-jdk-slim
 WORKDIR /app
 COPY --from=build /build/account/build/libs/account-*.jar ./account.jar
+EXPOSE 8081
 ENTRYPOINT ["java", "-jar", "account.jar"]

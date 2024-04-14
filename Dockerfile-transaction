@@ -7,4 +7,5 @@ RUN ./gradlew clean build -x test
 FROM openjdk:17-jdk-slim
 WORKDIR /app
 COPY --from=build /build/transaction/build/libs/transaction-*.jar ./transaction.jar
+EXPOSE 8083
 ENTRYPOINT ["java", "-jar", "transaction.jar"]
