@@ -77,8 +77,7 @@ public class TransactionService {
             throw new BusinessException(TRANSACTION_PROCESSING_ERROR);
         }
 
-        TransactionResponse response = buildTransactionResponse(transaction, balance);
-        return response;
+        return buildTransactionResponse(transaction, balance);
     }
 
     private TransactionResponse buildTransactionResponse(Transaction transaction, Balance balance) {

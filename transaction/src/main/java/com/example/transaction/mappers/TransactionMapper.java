@@ -2,10 +2,8 @@ package com.example.transaction.mappers;
 
 import com.example.common.model.Transaction;
 import org.apache.ibatis.annotations.*;
-import org.apache.ibatis.type.JdbcType;
 
 import java.time.OffsetDateTime;
-import java.time.ZonedDateTime;
 import java.util.List;
 
 @Mapper
