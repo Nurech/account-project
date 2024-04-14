@@ -1,18 +1,16 @@
 package com.example.account.serviceclient;
 
-import com.example.common.dto.account.AccountCreationRequest;
-import com.example.common.dto.account.AccountCreationResponse;
-import com.example.common.dto.balance.BalanceCreateRequest;
-import com.example.common.dto.balance.BalanceCreateResponse;
-import com.example.common.dto.balance.BalanceGetRequest;
-import com.example.common.dto.balance.BalanceGetResponse;
+import com.example.common.dto.balance.CreateBalanceRequest;
+import com.example.common.dto.balance.CreateBalanceResponse;
+import com.example.common.dto.balance.GetAccountBalancesRequest;
+import com.example.common.dto.balance.GetAccountBalancesResponse;
 import com.example.common.exception.exceptions.NoResponseFromRabbitException;
-import com.example.common.model.Balance;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.core.MessagePostProcessor;
+import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -21,16 +19,26 @@ public class BalanceService {
     private final RabbitTemplate rabbitTemplate;
 
 
-    public BalanceCreateResponse createAccountBalance(BalanceCreateRequest request) {
-        BalanceCreateResponse response = (BalanceCreateResponse) rabbitTemplate.convertSendAndReceive("balanceExchange", "balanceCreate", request);
+    public CreateBalanceResponse createAccountBalance(CreateBalanceRequest request) {
+        MessagePostProcessor messagePostProcessor = message -> {
+            message.getMessageProperties().setContentType(MessageProperties.CONTENT_TYPE_JSON);
+            return message;
+        };
+        CreateBalanceResponse response = (CreateBalanceResponse) rabbitTemplate.convertSendAndReceive(
+                "balance.exchange", "create.balance", request, messagePostProcessor
+        );
         if (response == null) {
             throw new NoResponseFromRabbitException(request);
         }
         return response;
     }
 
-    public BalanceGetResponse getAccountBalances(BalanceGetRequest request) {
-        BalanceGetResponse response = (BalanceGetResponse) rabbitTemplate.convertSendAndReceive("balanceExchange", "balancesGet", request);
+    public GetAccountBalancesResponse getAccountBalances(GetAccountBalancesRequest request) {
+        GetAccountBalancesResponse response = (GetAccountBalancesResponse) rabbitTemplate.convertSendAndReceive(
+                "balance.exchange", "get.balances", request, message -> {
+                    message.getMessageProperties().setContentType(MessageProperties.CONTENT_TYPE_JSON);
+                    return message;
+                });
         if (response == null) {
             throw new NoResponseFromRabbitException(request);
         }

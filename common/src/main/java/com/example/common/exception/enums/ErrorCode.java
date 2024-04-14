@@ -12,7 +12,8 @@ public enum ErrorCode {
     INVALID_REQUEST("1004", "The request is invalid."),
     TRANSACTION_ERROR("1005", "Error processing transaction."),
     NEGATIVE_AMOUNT("1006", "The amount must be positive."),
-    INVALID_DIRECTION("1007", "Transaction direction is invalid and must be 'IN' or 'OUT'.");
+    INVALID_DIRECTION("1007", "Transaction direction is invalid and must be 'IN' or 'OUT'."),
+    TRANSACTION_PROCESSING_ERROR("1008", "Unknown error occurred while processing transaction.");
 
     private final String code;
     private final String message;

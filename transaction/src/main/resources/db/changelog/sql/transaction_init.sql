@@ -1,9 +1,8 @@
-
 -- Create Transactions Table
 CREATE TABLE IF NOT EXISTS transactions
 (
     id                    SERIAL PRIMARY KEY,
-    account_id            INT        NOT NULL,
+    account_id            BIGINT     NOT NULL,
     amount                BIGINT     NOT NULL,
     currency              VARCHAR(3) NOT NULL,
     transaction_direction VARCHAR(3) CHECK (transaction_direction IN ('IN', 'OUT')),

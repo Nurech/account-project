@@ -5,12 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.io.Serializable;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BalanceGetResponse {
+public class GetBalanceByCurrencyResponse implements Serializable {
     private Long accountId;
-    private List<Balance> balances;
+    private Balance balance;
 }

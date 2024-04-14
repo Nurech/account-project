@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AccountCreationRequest implements Serializable {
-    private String customerId;
+    private Long customerId;
     private String country;
     private List<String> currencies;
 }

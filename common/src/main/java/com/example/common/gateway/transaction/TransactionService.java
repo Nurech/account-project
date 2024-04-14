@@ -6,6 +6,8 @@ import com.example.common.dto.transaction.TransactionsByAccountRequest;
 import com.example.common.dto.transaction.TransactionsByAccountResponse;
 import com.example.common.exception.exceptions.NoResponseFromRabbitException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.core.MessagePostProcessor;
+import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
@@ -15,9 +17,14 @@ public class TransactionService {
 
     private final RabbitTemplate rabbitTemplate;
 
-    //createTransaction
+    private final MessagePostProcessor jsonMessagePostProcessor = message -> {
+        message.getMessageProperties().setContentType(MessageProperties.CONTENT_TYPE_JSON);
+        return message;
+    };
+
     public TransactionResponse createTransaction(TransactionRequest request) {
-        TransactionResponse response = (TransactionResponse) rabbitTemplate.convertSendAndReceive("transactionExchange", "transactionCreate", request);
+        TransactionResponse response = (TransactionResponse) rabbitTemplate.convertSendAndReceive(
+                "transaction.exchange", "transaction.create", request, jsonMessagePostProcessor);
         if (response == null) {
             throw new NoResponseFromRabbitException(request);
         }
@@ -25,11 +32,11 @@ public class TransactionService {
     }
 
     public TransactionsByAccountResponse getTransactionsByAccountId(TransactionsByAccountRequest request) {
-        TransactionsByAccountResponse response = (TransactionsByAccountResponse) rabbitTemplate.convertSendAndReceive("transactionExchange", "transactionByAccountId", request);
+        TransactionsByAccountResponse response = (TransactionsByAccountResponse) rabbitTemplate.convertSendAndReceive(
+                "transaction.exchange", "get.transactions.by.account.id", request, jsonMessagePostProcessor);
         if (response == null) {
             throw new NoResponseFromRabbitException(request);
         }
         return response;
     }
-
 }

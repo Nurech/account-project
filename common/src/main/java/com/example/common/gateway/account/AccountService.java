@@ -6,6 +6,8 @@ import com.example.common.dto.account.AccountGetRequest;
 import com.example.common.dto.account.AccountGetResponse;
 import com.example.common.exception.exceptions.NoResponseFromRabbitException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.core.MessagePostProcessor;
+import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
@@ -15,8 +17,14 @@ public class AccountService {
 
     private final RabbitTemplate rabbitTemplate;
 
+    private final MessagePostProcessor jsonMessagePostProcessor = message -> {
+        message.getMessageProperties().setContentType(MessageProperties.CONTENT_TYPE_JSON);
+        return message;
+    };
+
     public AccountCreationResponse createAccount(AccountCreationRequest request) {
-        AccountCreationResponse response = (AccountCreationResponse) rabbitTemplate.convertSendAndReceive("accountExchange", "account.create", request);
+        AccountCreationResponse response = (AccountCreationResponse) rabbitTemplate.convertSendAndReceive(
+                "accountExchange", "account.create", request, jsonMessagePostProcessor);
         if (response == null) {
             throw new NoResponseFromRabbitException(request);
         }
@@ -24,11 +32,11 @@ public class AccountService {
     }
 
     public AccountGetResponse getAccount(AccountGetRequest request) {
-        AccountGetResponse response = (AccountGetResponse) rabbitTemplate.convertSendAndReceive("accountExchange", "account.get", request);
+        AccountGetResponse response = (AccountGetResponse) rabbitTemplate.convertSendAndReceive(
+                "accountExchange", "account.get", request, jsonMessagePostProcessor);
         if (response == null) {
             throw new NoResponseFromRabbitException(request);
         }
         return response;
     }
-
 }

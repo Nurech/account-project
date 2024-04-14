@@ -17,13 +17,13 @@ public class MessageListener {
 
     private final TransactionService service;
 
-    @RabbitListener(queues = "transactionCreateQueue")
+    @RabbitListener(queues = "create.transaction.queue")
     public TransactionResponse createTransactionMessage(TransactionRequest request) {
         log.info("Received message: {}", request);
         return service.createTransaction(request);
     }
 
-    @RabbitListener(queues = "transactionByAccountId")
+    @RabbitListener(queues = "get.transactions.by.account.id.queue")
     public TransactionsByAccountResponse getTransactionsByAccountIdMessage(TransactionsByAccountRequest request) {
         log.info("Received message: {}", request);
         return service.getTransactions(request);

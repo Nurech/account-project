@@ -10,7 +10,7 @@ public interface AccountMapper {
     @Options(useGeneratedKeys = true, keyProperty = "id")
     void insertAccount(Account account);
 
-    @Select("SELECT * FROM accounts WHERE id = #{id}")
+    @Select("SELECT id, customer_id AS customerId, country FROM accounts WHERE id = #{id}")
     Account findAccountById(Long id);
 
 }

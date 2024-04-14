@@ -14,21 +14,27 @@ public class BalanceListener {
 
     private final BalanceService service;
 
-    @RabbitListener(queues = "balanceCreateQueue")
-    public BalanceCreateResponse createBalanceMessage(BalanceCreateRequest request) {
+    @RabbitListener(queues = "create.balance.queue")
+    public CreateBalanceResponse createBalanceMessage(CreateBalanceRequest request) {
         log.info("Received message: {}", request);
         return service.createBalance(request);
     }
 
-    @RabbitListener(queues = "balanceUpdateQueue")
-    public BalanceUpdateResponse updateBalanceMessage(BalanceUpdateRequest request) {
+    @RabbitListener(queues = "update.balance.queue")
+    public UpdateBalanceResponse updateBalanceMessage(UpdateBalanceRequest request) {
         log.info("Received message: {}", request);
         return service.updateBalance(request);
     }
 
-    @RabbitListener(queues = "balanceGetQueue")
-    public BalanceGetResponse getBalancesMessage(BalanceGetRequest request) {
+    @RabbitListener(queues = "get.balances.queue")
+    public GetAccountBalancesResponse getBalancesMessage(GetAccountBalancesRequest request) {
         log.info("Received message: {}", request);
         return service.getBalances(request);
     }
+    @RabbitListener(queues = "get.balance.by.currency.queue")
+    public GetBalanceByCurrencyResponse getBalanceByCurrencyMessage(GetBalanceByCurrencyRequest request) {
+        log.info("Received message: {}", request);
+        return service.getBalancesByCurrency(request);
+    }
+
 }
