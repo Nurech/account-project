@@ -2,20 +2,22 @@
 CREATE TABLE IF NOT EXISTS transactions
 (
     id                    SERIAL PRIMARY KEY,
-    account_id            BIGINT     NOT NULL,
-    amount                BIGINT     NOT NULL,
-    currency              VARCHAR(3) NOT NULL,
+    account_id            BIGINT  NOT NULL,
+    amount                BIGINT  NOT NULL,
+    currency_id           INTEGER NOT NULL,
     transaction_direction VARCHAR(3) CHECK (transaction_direction IN ('IN', 'OUT')),
     description           TEXT,
     transaction_date      TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_account_transactions FOREIGN KEY (account_id) REFERENCES accounts (id)
+    CONSTRAINT fk_account_transactions FOREIGN KEY (account_id) REFERENCES accounts (id),
+    CONSTRAINT fk_currency_transactions FOREIGN KEY (currency_id) REFERENCES currencies (id)
 );
 
 -- Create Currencies Table
 CREATE TABLE IF NOT EXISTS currencies
 (
-    code       VARCHAR(3) PRIMARY KEY,
-    is_allowed BOOLEAN NOT NULL DEFAULT TRUE
+    id         SERIAL PRIMARY KEY,
+    code       VARCHAR(3) UNIQUE NOT NULL,
+    is_allowed BOOLEAN           NOT NULL DEFAULT TRUE
 );
 
 -- Insert Allowed Currencies
@@ -24,4 +26,5 @@ VALUES ('EUR', TRUE),
        ('SEK', TRUE),
        ('GBP', TRUE),
        ('USD', TRUE)
-ON CONFLICT (code) DO UPDATE SET is_allowed = EXCLUDED.is_allowed;
+ON CONFLICT (code) DO NOTHING;
+

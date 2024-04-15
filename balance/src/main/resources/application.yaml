@@ -1,19 +1,19 @@
 spring:
   datasource:
-    url: jdbc:postgresql://postgres:5432/postgres
+    url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
     password: postgres
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
+  rabbitmq:
+    host: localhost
+    port: 5672
   liquibase:
     enabled: true
     change-log: classpath:/db/changelog/db.changelog-balance.xml
     database-change-log-table: dbchangelog_balance
     database-change-log-lock-table: dbchangeloglock_balance
-  rabbitmq:
-    host: rabbitmq
-    port: 5672
 
 mybatis:
   type-aliases-package: com.example.common.model.Balance
