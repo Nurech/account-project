@@ -3,6 +3,7 @@ plugins {
     id 'org.springframework.boot' version '3.2.4' apply false
     id 'io.spring.dependency-management' version '1.1.4' apply false
     id 'io.freefair.lombok' version '6.2.0' apply false
+    id 'jacoco'
 }
 
 group = 'com.example'
@@ -11,6 +12,16 @@ version = '0.0.1-SNAPSHOT'
 java {
     sourceCompatibility = JavaVersion.VERSION_17
 }
+
+// Code coverage
+jacocoTestReport {
+    reports {
+        xml.required = false
+        csv.required = false
+        html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+    }
+}
+
 
 allprojects {
     repositories {
@@ -52,6 +63,7 @@ subprojects {
         testImplementation 'org.testcontainers:junit-jupiter'
         testImplementation 'org.testcontainers:rabbitmq'
         testImplementation 'org.testcontainers:postgresql'
+        testImplementation 'org.testcontainers:testcontainers'
 
         // Cacheing
         implementation 'org.springframework.boot:spring-boot-starter-cache'
@@ -65,4 +77,53 @@ subprojects {
 
 ext {
     set('springCloudVersion', "2023.0.1")
+}
+
+
+tasks.register('copyArtifactsForIntegrationTest', Copy) {
+
+    // Set a strategy to include and hence overwrite existing files
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
+    dependsOn 'build'
+
+    from('balance/build/libs') { include '*SNAPSHOT.jar' }
+    from('transaction/build/libs') { include '*SNAPSHOT.jar' }
+    from('common/build/libs') { include '*SNAPSHOT.jar' }
+
+    // Define the target directory within the 'account' project's test resources
+    into 'account/src/test/resources'
+}
+
+
+// Task at the root level to run integration tests across subprojects
+tasks.register('integrationTest', Test) {
+    // Currently only Account service has integration tests as required
+    description = 'Runs integration tests across all subprojects.'
+    group = 'verification'
+
+    // Define a classpath that includes the test runtime classpaths of all subprojects
+    classpath = files(subprojects.collect {
+        it.tasks.withType(Test).findByName('test')?.classpath
+    })
+
+    // Define where Gradle should look for test classes across subprojects
+    testClassesDirs = files(subprojects.collect {
+        it.sourceSets.test.output.classesDirs
+    })
+
+    useJUnitPlatform()
+}
+
+
+// Ensure integrationTest runs after all tests in subprojects
+tasks.named('integrationTest').configure {
+    subprojects.each { subproject ->
+        dependsOn("${subproject.name}:test")
+    }
+}
+
+tasks.named('processTestResources') {
+    mustRunAfter 'copyArtifactsForIntegrationTest'
+    dependsOn 'copyArtifactsForIntegrationTest'
 }
