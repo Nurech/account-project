@@ -13,16 +13,6 @@ java {
     sourceCompatibility = JavaVersion.VERSION_17
 }
 
-// Code coverage
-jacocoTestReport {
-    reports {
-        xml.required = false
-        csv.required = false
-        html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
-    }
-}
-
-
 allprojects {
     repositories {
         mavenCentral()
@@ -30,6 +20,7 @@ allprojects {
 }
 
 subprojects {
+    apply plugin: 'jacoco'
     apply plugin: 'java'
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
@@ -115,13 +106,6 @@ tasks.register('integrationTest', Test) {
     useJUnitPlatform()
 }
 
-
-// Ensure integrationTest runs after all tests in subprojects
-tasks.named('integrationTest').configure {
-    subprojects.each { subproject ->
-        dependsOn("${subproject.name}:test")
-    }
-}
 
 tasks.named('processTestResources') {
     mustRunAfter 'copyArtifactsForIntegrationTest'

@@ -42,6 +42,7 @@ public class AccountService {
         account.setCountry(request.getCountry());
 
         try {
+
             for (String currency : request.getCurrencies()) {
                 if (!currencyService.isCurrencyAllowed(currency)) {
                     throw new BusinessException(INVALID_CURRENCY, "Currency " + currency + " is not allowed.");
@@ -49,9 +50,9 @@ public class AccountService {
             }
             mapper.insertAccount(account);
 
-
             List<Balance> balances = new ArrayList<>();
-            // Immediately create balances
+
+            // Create balances
             for (String currency : request.getCurrencies()) {
                 Balance balance = new Balance();
                 balance.setAccountId(account.getId());
@@ -67,7 +68,7 @@ public class AccountService {
             return new AccountCreationResponse(account.getId(), account.getCustomerId(), balances);
 
         } catch (BusinessException e) {
-            throw e;
+            throw e; // rethrow the exception to be handled by the controller
         }
 
     }
