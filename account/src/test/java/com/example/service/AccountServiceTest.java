@@ -8,9 +8,11 @@ import com.example.account.service.AccountService;
 import com.example.common.dto.account.AccountCreationRequest;
 import com.example.common.dto.account.AccountCreationResponse;
 import com.example.common.dto.account.AccountGetRequest;
+import com.example.common.dto.account.AccountGetResponse;
 import com.example.common.exception.exceptions.BusinessException;
 import com.example.common.model.Account;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 
 import java.util.List;
@@ -50,6 +52,27 @@ public class AccountServiceTest extends AccountApplicationBaseTest {
         assertThrows(BusinessException.class, () -> {
             accountService.getAccount(request);
         }, "Should not have found non existent account.");
+    }
+
+    @Test
+    public void mustFindAccountSuccessfully() {
+        // Create the account then find it from the database
+        AccountCreationRequest request = AccountCreationRequest.builder()
+                .customerId(5L)
+                .country("US")
+                .currencies(List.of("USD"))
+                .build();
+        accountService.createAccount(request);
+
+        AccountGetRequest getRequest = AccountGetRequest.builder()
+                .accountId(request.getCustomerId())
+                .build();
+        AccountGetResponse response = accountService.getAccount(getRequest);
+
+        assertNotNull(response);
+        assertEquals(request.getCustomerId(), response.getCustomerId());
+        assertEquals(response.getAccountId(), request.getCustomerId());
+        assertNotNull(response.getBalances());
     }
 
     @Test

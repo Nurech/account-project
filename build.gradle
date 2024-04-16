@@ -4,6 +4,7 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.4' apply false
     id 'io.freefair.lombok' version '6.2.0' apply false
     id 'jacoco'
+    id 'jacoco-report-aggregation'
 }
 
 group = 'com.example'
@@ -27,8 +28,6 @@ subprojects {
     apply plugin: 'io.freefair.lombok'
 
     dependencies {
-
-        // Define dependencies common to all subprojects
         implementation 'org.springframework.boot:spring-boot-starter-amqp'
         implementation 'org.springframework.boot:spring-boot-starter-data-rest'
         implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -40,12 +39,8 @@ subprojects {
         implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.2.4'
         implementation 'org.liquibase:liquibase-core'
         implementation 'org.postgresql:postgresql'
-
-        // Lombok dependency
         compileOnly 'org.projectlombok:lombok'
         annotationProcessor 'org.projectlombok:lombok'
-
-        // Test dependencies
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
         testImplementation 'org.springframework.boot:spring-boot-testcontainers'
         testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3'
@@ -55,14 +50,25 @@ subprojects {
         testImplementation 'org.testcontainers:rabbitmq'
         testImplementation 'org.testcontainers:postgresql'
         testImplementation 'org.testcontainers:testcontainers'
-
-        // Cacheing
         implementation 'org.springframework.boot:spring-boot-starter-cache'
         implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
-
-        // Lombok for testing
         testCompileOnly 'org.projectlombok:lombok'
         testAnnotationProcessor 'org.projectlombok:lombok'
+    }
+
+    test {
+        finalizedBy jacocoTestReport
+    }
+
+    jacocoTestReport {
+        dependsOn test
+        additionalSourceDirs = files(subprojects.sourceSets.main.allSource.srcDirs)
+        reports {
+            xml.required = true
+            html.required = true
+            html.outputLocation = layout.buildDirectory.dir("reports/jacoco/html")
+            xml.outputLocation = layout.buildDirectory.file("reports/jacoco/report.xml")
+        }
     }
 }
 
@@ -70,44 +76,64 @@ ext {
     set('springCloudVersion', "2023.0.1")
 }
 
-
 tasks.register('copyArtifactsForIntegrationTest', Copy) {
-
-    // Set a strategy to include and hence overwrite existing files
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
-
     dependsOn 'build'
-
     from('balance/build/libs') { include '*SNAPSHOT.jar' }
     from('transaction/build/libs') { include '*SNAPSHOT.jar' }
     from('common/build/libs') { include '*SNAPSHOT.jar' }
-
-    // Define the target directory within the 'account' project's test resources
     into 'account/src/test/resources'
 }
 
-
-// Task at the root level to run integration tests across subprojects
 tasks.register('integrationTest', Test) {
-    // Currently only Account service has integration tests as required
     description = 'Runs integration tests across all subprojects.'
     group = 'verification'
-
-    // Define a classpath that includes the test runtime classpaths of all subprojects
     classpath = files(subprojects.collect {
         it.tasks.withType(Test).findByName('test')?.classpath
     })
-
-    // Define where Gradle should look for test classes across subprojects
     testClassesDirs = files(subprojects.collect {
         it.sourceSets.test.output.classesDirs
     })
-
     useJUnitPlatform()
 }
-
 
 tasks.named('processTestResources') {
     mustRunAfter 'copyArtifactsForIntegrationTest'
     dependsOn 'copyArtifactsForIntegrationTest'
 }
+
+tasks.register('jacocoRootReport', JacocoReport) {
+    description = 'Generates an aggregated report from all subprojects.'
+    group = 'verification'
+
+    // Gather execution data from all subprojects
+    executionData fileTree(dir: '.', include: '**/build/jacoco/*.exec')
+
+    // Define the class files and source structure
+    subprojects.each { subproject ->
+        sourceSets(subproject.sourceSets.main)
+    }
+
+    // Correctly configure the report outputs using the Gradle Provider API
+    reports {
+        xml {
+            destination = layout.buildDirectory.file("reports/jacoco/aggregatedXml.xml").get().asFile
+        }
+        html {
+            destination = layout.buildDirectory.dir("reports/jacoco/aggregatedHtml").get().asFile
+        }
+    }
+}
+
+
+tasks.register('aggregateTestReports') {
+    doLast {
+        file("$buildDir/reports/tests/aggregate").mkdirs()
+        fileTree(dir: '.', include: '**/build/test-results/test/**').copy {
+            into "$buildDir/reports/tests/aggregate"
+        }
+    }
+}
+
+check.dependsOn jacocoRootReport
+check.dependsOn aggregateTestReports
