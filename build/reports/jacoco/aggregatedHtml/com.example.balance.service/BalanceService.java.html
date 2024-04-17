@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BalanceService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">account-project</a> &gt; <a href="index.source.html" class="el_package">com.example.balance.service</a> &gt; <span class="el_source">BalanceService.java</span></div><h1>BalanceService.java</h1><pre class="source lang-java linenums">package com.example.balance.service;
+
+import com.example.balance.mappers.BalanceMapper;
+import com.example.balance.serviceclient.CurrencyService;
+import com.example.common.domain.balance.*;
+import com.example.common.exception.exceptions.BusinessException;
+import com.example.common.model.Balance;
+import com.example.common.model.Currency;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+import static com.example.common.exception.enums.ErrorCode.BALANCE_MISSING;
+import static com.example.common.exception.enums.ErrorCode.INVALID_CURRENCY;
+
+@Service
+<span class="nc" id="L20">@Slf4j</span>
+@RequiredArgsConstructor
+public class BalanceService {
+
+    private final BalanceMapper mapper;
+    private final CurrencyService currencyService;
+
+    @Transactional
+    public CreateBalanceResponse createBalance(CreateBalanceRequest request) {
+<span class="nc" id="L29">        Balance balance = request.getBalance();</span>
+<span class="nc" id="L30">        mapper.insertBalance(balance);</span>
+<span class="nc" id="L31">        return new CreateBalanceResponse(balance.getAccountId(), List.of(balance));</span>
+    }
+
+
+    public UpdateBalanceResponse updateBalance(UpdateBalanceRequest request) {
+<span class="nc" id="L36">        mapper.updateBalance(request.getBalance());</span>
+<span class="nc" id="L37">        return new UpdateBalanceResponse(request.getBalance());</span>
+
+    }
+
+    public GetAccountBalancesResponse getBalances(GetAccountBalancesRequest request) {
+<span class="nc" id="L42">        List&lt;Balance&gt; balances = mapper.findBalancesByAccountId(request.getAccountId());</span>
+<span class="nc" id="L43">        return new GetAccountBalancesResponse(request.getAccountId(), balances);</span>
+    }
+
+    public GetBalanceByCurrencyResponse getBalancesByCurrency(GetBalanceByCurrencyRequest request) {
+<span class="nc" id="L47">        boolean isCurrencyAllowed = currencyService.isCurrencyAllowed(request.getCurrency());</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">        if (!isCurrencyAllowed) {</span>
+<span class="nc" id="L49">            log.warn(&quot;Currency {} is not allowed&quot;, request.getCurrency());</span>
+<span class="nc" id="L50">            throw new BusinessException(INVALID_CURRENCY);</span>
+        }
+<span class="nc" id="L52">        Balance balance = mapper.findBalanceByAccountIdAndCurrency(request.getAccountId(), request.getCurrency());</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (balance == null) {</span>
+<span class="nc" id="L54">            throw new BusinessException(BALANCE_MISSING);</span>
+        }
+<span class="nc" id="L56">        return new GetBalanceByCurrencyResponse(request.getAccountId(), balance);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

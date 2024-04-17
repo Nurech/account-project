@@ -1,6 +1,7 @@
 HELP.md
 .gradle
-build/
+build/libs
+build/tmp
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
@@ -35,5 +36,3 @@ out/
 
 ### VS Code ###
 .vscode/
-
-!account-project/account/build/reports/jacoco/integrationTest/html/

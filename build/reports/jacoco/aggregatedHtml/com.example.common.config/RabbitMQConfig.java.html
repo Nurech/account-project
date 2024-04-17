@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RabbitMQConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">account-project</a> &gt; <a href="index.source.html" class="el_package">com.example.common.config</a> &gt; <span class="el_source">RabbitMQConfig.java</span></div><h1>RabbitMQConfig.java</h1><pre class="source lang-java linenums">package com.example.common.config;
+
+import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.config.RetryInterceptorBuilder;
+import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+<span class="nc" id="L12">public class RabbitMQConfig {</span>
+
+    @Bean
+    public Queue accountQueue() {
+<span class="nc" id="L16">        return new Queue(&quot;accountQueue&quot;, true);</span>
+    }
+
+    @Bean
+    public Queue transactionQueue() {
+<span class="nc" id="L21">        return new Queue(&quot;transactionQueue&quot;, true);</span>
+    }
+
+    @Bean
+    public Queue balanceQueue() {
+<span class="nc" id="L26">        return new Queue(&quot;balanceQueue&quot;, true);</span>
+    }
+
+    @Bean
+    public TopicExchange accountExchange() {
+<span class="nc" id="L31">        return new TopicExchange(&quot;accountExchange&quot;);</span>
+    }
+
+    @Bean
+    public TopicExchange transactionExchange() {
+<span class="nc" id="L36">        return new TopicExchange(&quot;transaction.exchange&quot;);</span>
+    }
+
+    @Bean
+    public TopicExchange balanceExchange() {
+<span class="nc" id="L41">        return new TopicExchange(&quot;balance.exchange&quot;);</span>
+    }
+
+    @Bean
+    public Binding accountBinding(Queue accountQueue, TopicExchange accountExchange) {
+<span class="nc" id="L46">        return BindingBuilder.bind(accountQueue).to(accountExchange).with(&quot;account.#&quot;);</span>
+    }
+
+    @Bean
+    public Binding transactionBinding(Queue transactionQueue, TopicExchange transactionExchange) {
+<span class="nc" id="L51">        return BindingBuilder.bind(transactionQueue).to(transactionExchange).with(&quot;transaction.#&quot;);</span>
+    }
+
+    @Bean
+    public Binding balanceBinding(Queue balanceQueue, TopicExchange balanceExchange) {
+<span class="nc" id="L56">        return BindingBuilder.bind(balanceQueue).to(balanceExchange).with(&quot;balance.#&quot;);</span>
+    }
+
+    @Bean
+    public Jackson2JsonMessageConverter consumerJackson2MessageConverter() {
+<span class="nc" id="L61">        return new Jackson2JsonMessageConverter();</span>
+    }
+
+    @Bean
+    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(ConnectionFactory connectionFactory) {
+<span class="nc" id="L66">        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();</span>
+<span class="nc" id="L67">        factory.setConnectionFactory(connectionFactory);</span>
+<span class="nc" id="L68">        factory.setMessageConverter(consumerJackson2MessageConverter());</span>
+<span class="nc" id="L69">        factory.setAdviceChain(RetryInterceptorBuilder.stateless()</span>
+<span class="nc" id="L70">                .maxAttempts(1)</span>
+<span class="nc" id="L71">                .build());</span>
+<span class="nc" id="L72">        return factory;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

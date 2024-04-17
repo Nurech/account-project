@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AccountService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">account-project</a> &gt; <a href="index.source.html" class="el_package">com.example.transaction.serviceclient</a> &gt; <span class="el_source">AccountService.java</span></div><h1>AccountService.java</h1><pre class="source lang-java linenums">package com.example.transaction.serviceclient;
+
+import com.example.common.domain.account.AccountGetRequest;
+import com.example.common.domain.account.AccountGetResponse;
+import com.example.common.domain.balance.GetBalanceByCurrencyRequest;
+import com.example.common.domain.balance.GetBalanceByCurrencyResponse;
+import com.example.common.domain.balance.UpdateBalanceRequest;
+import com.example.common.domain.balance.UpdateBalanceResponse;
+import com.example.common.dto.ResponseWrapperDTO;
+import com.example.common.model.Balance;
+import com.example.transaction.service.MessageProcessingService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class AccountService {
+
+    private final RabbitTemplate rabbitTemplate;
+    private final MessageProcessingService messageProcessingService;
+
+    public boolean checkAccountExists(Long accountId) {
+<span class="nc" id="L25">        AccountGetRequest request = new AccountGetRequest(accountId);</span>
+<span class="nc" id="L26">        ParameterizedTypeReference&lt;ResponseWrapperDTO&lt;AccountGetResponse&gt;&gt; responseType = new ParameterizedTypeReference&lt;&gt;() {</span>
+        };
+<span class="nc" id="L28">        ResponseWrapperDTO&lt;AccountGetResponse&gt; response = rabbitTemplate.convertSendAndReceiveAsType(</span>
+                &quot;accountExchange&quot;, &quot;account.get&quot;, request, responseType);
+<span class="nc bnc" id="L30" title="All 2 branches missed.">        return messageProcessingService.processResponseWrapper(response) != null;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

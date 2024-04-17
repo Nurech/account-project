@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TransactionController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">account-project</a> &gt; <a href="index.source.html" class="el_package">com.example.common.gateway.transaction</a> &gt; <span class="el_source">TransactionController.java</span></div><h1>TransactionController.java</h1><pre class="source lang-java linenums">package com.example.common.gateway.transaction;
+
+import com.example.common.domain.transaction.TransactionRequest;
+import com.example.common.domain.transaction.TransactionResponse;
+import com.example.common.domain.transaction.TransactionsByAccountRequest;
+import com.example.common.domain.transaction.TransactionsByAccountResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping(&quot;/api/transactions&quot;)
+public class TransactionController {
+
+    private final TransactionService transactionService;
+
+    @PostMapping()
+    public ResponseEntity&lt;TransactionResponse&gt; createTransaction(@RequestBody TransactionRequest request) {
+<span class="nc" id="L21">        TransactionResponse response = transactionService.createTransaction(request);</span>
+<span class="nc" id="L22">        return ResponseEntity.ok(response);</span>
+    }
+
+    @GetMapping(&quot;/{accountId}&quot;)
+    public ResponseEntity&lt;TransactionsByAccountResponse&gt; getTransactions(@PathVariable Long accountId) {
+<span class="nc" id="L27">        TransactionsByAccountRequest request = new TransactionsByAccountRequest(accountId);</span>
+<span class="nc" id="L28">        TransactionsByAccountResponse response = transactionService.getTransactionsByAccountId(request);</span>
+<span class="nc" id="L29">        return ResponseEntity.ok(response);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

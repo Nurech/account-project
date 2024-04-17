@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BalanceListener.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">account-project</a> &gt; <a href="index.source.html" class="el_package">com.example.balance.listener</a> &gt; <span class="el_source">BalanceListener.java</span></div><h1>BalanceListener.java</h1><pre class="source lang-java linenums">package com.example.balance.listener;
+
+import com.example.balance.service.BalanceService;
+import com.example.common.domain.balance.*;
+import com.example.common.dto.ErrorDTO;
+import com.example.common.dto.ResponseWrapperDTO;
+import com.example.common.exception.exceptions.BusinessException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.stereotype.Service;
+
+@Service
+<span class="nc" id="L14">@Slf4j</span>
+@RequiredArgsConstructor
+public class BalanceListener {
+
+    private final BalanceService service;
+
+    @RabbitListener(queues = &quot;create.balance.queue&quot;)
+    public ResponseWrapperDTO&lt;CreateBalanceResponse&gt; createBalanceMessage(CreateBalanceRequest request) {
+<span class="nc" id="L22">        log.info(&quot;Received message create balance: {}&quot;, request);</span>
+        try {
+<span class="nc" id="L24">            CreateBalanceResponse response = service.createBalance(request);</span>
+<span class="nc" id="L25">            return new ResponseWrapperDTO&lt;&gt;(response);</span>
+<span class="nc" id="L26">        } catch (BusinessException e) {</span>
+<span class="nc" id="L27">            ErrorDTO error = new ErrorDTO();</span>
+<span class="nc" id="L28">            error.setErrorCode(e.getCode());</span>
+<span class="nc" id="L29">            error.setErrorMessage(e.getMessage());</span>
+<span class="nc" id="L30">            return new ResponseWrapperDTO&lt;&gt;(error);</span>
+        }
+    }
+
+    @RabbitListener(queues = &quot;update.balance.queue&quot;)
+    public ResponseWrapperDTO&lt;UpdateBalanceResponse&gt; updateBalanceMessage(UpdateBalanceRequest request) {
+<span class="nc" id="L36">        log.info(&quot;Received message update balance: {}&quot;, request);</span>
+        try {
+<span class="nc" id="L38">            UpdateBalanceResponse response = service.updateBalance(request);</span>
+<span class="nc" id="L39">            return new ResponseWrapperDTO&lt;&gt;(response);</span>
+<span class="nc" id="L40">        } catch (BusinessException e) {</span>
+<span class="nc" id="L41">            ErrorDTO error = new ErrorDTO();</span>
+<span class="nc" id="L42">            error.setErrorCode(e.getCode());</span>
+<span class="nc" id="L43">            error.setErrorMessage(e.getMessage());</span>
+<span class="nc" id="L44">            return new ResponseWrapperDTO&lt;&gt;(error);</span>
+        }
+    }
+
+    @RabbitListener(queues = &quot;get.balances.queue&quot;)
+    public ResponseWrapperDTO&lt;GetAccountBalancesResponse&gt; getBalancesMessage(GetAccountBalancesRequest request) {
+<span class="nc" id="L50">        log.info(&quot;Received message get balances: {}&quot;, request);</span>
+        try {
+<span class="nc" id="L52">            GetAccountBalancesResponse response = service.getBalances(request);</span>
+<span class="nc" id="L53">            return new ResponseWrapperDTO&lt;&gt;(response);</span>
+<span class="nc" id="L54">        } catch (BusinessException e) {</span>
+<span class="nc" id="L55">            ErrorDTO error = new ErrorDTO();</span>
+<span class="nc" id="L56">            error.setErrorCode(e.getCode());</span>
+<span class="nc" id="L57">            error.setErrorMessage(e.getMessage());</span>
+<span class="nc" id="L58">            return new ResponseWrapperDTO&lt;&gt;(error);</span>
+        }
+    }
+
+    @RabbitListener(queues = &quot;get.balance.by.currency.queue&quot;)
+    public ResponseWrapperDTO&lt;GetBalanceByCurrencyResponse&gt; getBalanceByCurrencyMessage(GetBalanceByCurrencyRequest request) {
+<span class="nc" id="L64">        log.info(&quot;Received message get balance by currency: {}&quot;, request);</span>
+        try {
+<span class="nc" id="L66">            GetBalanceByCurrencyResponse response = service.getBalancesByCurrency(request);</span>
+<span class="nc" id="L67">            return new ResponseWrapperDTO&lt;&gt;(response);</span>
+<span class="nc" id="L68">        } catch (BusinessException e) {</span>
+<span class="nc" id="L69">            ErrorDTO error = new ErrorDTO();</span>
+<span class="nc" id="L70">            error.setErrorCode(e.getCode());</span>
+<span class="nc" id="L71">            error.setErrorMessage(e.getMessage());</span>
+<span class="nc" id="L72">            return new ResponseWrapperDTO&lt;&gt;(error);</span>
+        }
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MessageListener.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">account-project</a> &gt; <a href="index.source.html" class="el_package">com.example.transaction.listener</a> &gt; <span class="el_source">MessageListener.java</span></div><h1>MessageListener.java</h1><pre class="source lang-java linenums">package com.example.transaction.listener;
+
+import com.example.common.domain.transaction.TransactionRequest;
+import com.example.common.domain.transaction.TransactionResponse;
+import com.example.common.domain.transaction.TransactionsByAccountRequest;
+import com.example.common.domain.transaction.TransactionsByAccountResponse;
+import com.example.common.dto.ErrorDTO;
+import com.example.common.dto.ResponseWrapperDTO;
+import com.example.common.exception.exceptions.BusinessException;
+import com.example.transaction.service.TransactionService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.stereotype.Service;
+
+@Service
+<span class="nc" id="L17">@Slf4j</span>
+@RequiredArgsConstructor
+public class MessageListener {
+
+    private final TransactionService service;
+
+    @RabbitListener(queues = &quot;create.transaction.queue&quot;)
+    public ResponseWrapperDTO&lt;TransactionResponse&gt; createTransactionMessage(TransactionRequest request) {
+<span class="nc" id="L25">        log.info(&quot;Received message for creating transaction: {}&quot;, request);</span>
+        try {
+<span class="nc" id="L27">            TransactionResponse response = service.createTransaction(request);</span>
+<span class="nc" id="L28">            return new ResponseWrapperDTO&lt;&gt;(response);</span>
+<span class="nc" id="L29">        } catch (BusinessException e) {</span>
+<span class="nc" id="L30">            ErrorDTO error = new ErrorDTO();</span>
+<span class="nc" id="L31">            error.setErrorCode(e.getCode());</span>
+<span class="nc" id="L32">            error.setErrorMessage(e.getMessage());</span>
+<span class="nc" id="L33">            return new ResponseWrapperDTO&lt;&gt;(error);</span>
+        }
+    }
+
+    @RabbitListener(queues = &quot;get.transactions.by.account.id.queue&quot;)
+    public ResponseWrapperDTO&lt;TransactionsByAccountResponse&gt; getTransactionsByAccountIdMessage(TransactionsByAccountRequest request) {
+<span class="nc" id="L39">        log.info(&quot;Received message for getting transactions by account ID: {}&quot;, request);</span>
+        try {
+<span class="nc" id="L41">            TransactionsByAccountResponse response = service.getTransactions(request);</span>
+<span class="nc" id="L42">            return new ResponseWrapperDTO&lt;&gt;(response);</span>
+<span class="nc" id="L43">        } catch (BusinessException e) {</span>
+<span class="nc" id="L44">            ErrorDTO error = new ErrorDTO();</span>
+<span class="nc" id="L45">            error.setErrorCode(e.getCode());</span>
+<span class="nc" id="L46">            error.setErrorMessage(e.getMessage());</span>
+<span class="nc" id="L47">            return new ResponseWrapperDTO&lt;&gt;(error);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AccountMessageListener.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">account-project</a> &gt; <a href="index.source.html" class="el_package">com.example.account.listener</a> &gt; <span class="el_source">AccountMessageListener.java</span></div><h1>AccountMessageListener.java</h1><pre class="source lang-java linenums">package com.example.account.listener;
+
+import com.example.common.domain.account.AccountCreationRequest;
+import com.example.common.domain.account.AccountCreationResponse;
+import com.example.common.domain.account.AccountGetRequest;
+import com.example.common.domain.account.AccountGetResponse;
+import com.example.account.service.AccountService;
+import com.example.common.dto.ErrorDTO;
+import com.example.common.dto.ResponseWrapperDTO;
+import com.example.common.exception.exceptions.BusinessException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.stereotype.Service;
+
+@Service
+<span class="fc" id="L17">@Slf4j</span>
+@RequiredArgsConstructor
+public class AccountMessageListener {
+
+    private final AccountService accountService;
+
+    @RabbitListener(queues = &quot;accountCreateQueue&quot;, returnExceptions = &quot;true&quot;)
+    public ResponseWrapperDTO&lt;AccountCreationResponse&gt; createAccountMessage(AccountCreationRequest request) {
+<span class="nc" id="L25">        log.info(&quot;Received message: {}&quot;, request);</span>
+        try {
+<span class="nc" id="L27">            AccountCreationResponse response = accountService.createAccount(request);</span>
+<span class="nc" id="L28">            return new ResponseWrapperDTO&lt;&gt;(response);</span>
+<span class="nc" id="L29">        } catch (BusinessException e) {</span>
+<span class="nc" id="L30">            ErrorDTO error = new ErrorDTO();</span>
+<span class="nc" id="L31">            error.setErrorCode(e.getCode());</span>
+<span class="nc" id="L32">            error.setErrorMessage(e.getMessage());</span>
+<span class="nc" id="L33">            return new ResponseWrapperDTO&lt;&gt;(error);</span>
+        }
+    }
+
+    @RabbitListener(queues = &quot;accountGetQueue&quot;, returnExceptions = &quot;true&quot;)
+    public ResponseWrapperDTO&lt;AccountGetResponse&gt; getAccountMessage(AccountGetRequest request) {
+<span class="nc" id="L39">        log.info(&quot;Received message: {}&quot;, request);</span>
+        try {
+<span class="nc" id="L41">            AccountGetResponse response = accountService.getAccount(request);</span>
+<span class="nc" id="L42">            return new ResponseWrapperDTO&lt;&gt;(response);</span>
+<span class="nc" id="L43">        } catch (BusinessException e) {</span>
+<span class="nc" id="L44">            ErrorDTO error = new ErrorDTO();</span>
+<span class="nc" id="L45">            error.setErrorCode(e.getCode());</span>
+<span class="nc" id="L46">            error.setErrorMessage(e.getMessage());</span>
+<span class="nc" id="L47">            return new ResponseWrapperDTO&lt;&gt;(error);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

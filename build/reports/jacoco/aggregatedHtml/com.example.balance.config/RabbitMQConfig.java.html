@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RabbitMQConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">account-project</a> &gt; <a href="index.source.html" class="el_package">com.example.balance.config</a> &gt; <span class="el_source">RabbitMQConfig.java</span></div><h1>RabbitMQConfig.java</h1><pre class="source lang-java linenums">package com.example.balance.config;
+
+import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.config.RetryInterceptorBuilder;
+import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+<span class="nc" id="L12">public class RabbitMQConfig {</span>
+
+    @Bean
+    Queue balanceCreateQueue() {
+<span class="nc" id="L16">        return new Queue(&quot;create.balance.queue&quot;, true);</span>
+    }
+
+    @Bean
+    Queue balanceUpdateQueue() {
+<span class="nc" id="L21">        return new Queue(&quot;update.balance.queue&quot;, true);</span>
+    }
+
+    @Bean
+    Queue balanceGetQueue() {
+<span class="nc" id="L26">        return new Queue(&quot;get.balances.queue&quot;, true);</span>
+    }
+    @Bean
+    Queue getBalanceByCurrencyQueue() {
+<span class="nc" id="L30">        return new Queue(&quot;get.balance.by.currency.queue&quot;, true);</span>
+    }
+
+    @Bean
+    TopicExchange balanceExchange() {
+<span class="nc" id="L35">        return new TopicExchange(&quot;balance.exchange&quot;);</span>
+    }
+
+    @Bean
+    Binding bindingCreate(Queue balanceCreateQueue, TopicExchange balanceExchange) {
+<span class="nc" id="L40">        return BindingBuilder.bind(balanceCreateQueue).to(balanceExchange).with(&quot;create.balance&quot;);</span>
+    }
+
+    @Bean
+    Binding bindingUpdate(Queue balanceUpdateQueue, TopicExchange balanceExchange) {
+<span class="nc" id="L45">        return BindingBuilder.bind(balanceUpdateQueue).to(balanceExchange).with(&quot;update.balance&quot;);</span>
+    }
+
+    @Bean
+    Binding bindingGetByCurrency(Queue getBalanceByCurrencyQueue, TopicExchange balanceExchange) {
+<span class="nc" id="L50">        return BindingBuilder.bind(getBalanceByCurrencyQueue).to(balanceExchange).with(&quot;get.balance.by.currency&quot;);</span>
+    }
+
+    @Bean
+    Binding bindingGetAccountBalances(Queue balanceGetQueue, TopicExchange balanceExchange) {
+<span class="nc" id="L55">        return BindingBuilder.bind(balanceGetQueue).to(balanceExchange).with(&quot;get.balances&quot;);</span>
+    }
+
+    @Bean
+    public Jackson2JsonMessageConverter consumerJackson2MessageConverter() {
+<span class="nc" id="L60">        return new Jackson2JsonMessageConverter();</span>
+    }
+
+    @Bean
+    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(ConnectionFactory connectionFactory) {
+<span class="nc" id="L65">        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();</span>
+<span class="nc" id="L66">        factory.setConnectionFactory(connectionFactory);</span>
+<span class="nc" id="L67">        factory.setMessageConverter(consumerJackson2MessageConverter());</span>
+<span class="nc" id="L68">        factory.setAdviceChain(RetryInterceptorBuilder.stateless()</span>
+<span class="nc" id="L69">                .maxAttempts(1)</span>
+<span class="nc" id="L70">                .build());</span>
+<span class="nc" id="L71">        return factory;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
