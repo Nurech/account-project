@@ -5,8 +5,8 @@ import lombok.Getter;
 
 @Getter
 public class BusinessException extends RuntimeException {
-    public String code;
-    public String message;
+    public final String code;
+    public final String message;
 
     public BusinessException(ErrorCode errorCode, Object... args) {
         super(errorCode.formatMessage(args));

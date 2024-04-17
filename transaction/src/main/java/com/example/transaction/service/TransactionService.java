@@ -56,17 +56,15 @@ public class TransactionService {
 
             if (transaction.getTransactionDirection().equals("IN")) {
                 balance.setAvailableAmount(currentBalance.add(sum));
-                balanceService.updateBalance(balance);
-                transactionMapper.insertTransaction(transaction);
             } else {
                 if (currentBalance.subtract(sum).compareTo(BigDecimal.ZERO) < 0) {
                     log.warn("Insufficient funds for accountId: {}, required: {}, available: {}", transaction.getAccountId(), sum, currentBalance);
                     throw new BusinessException(INSUFFICIENT_FUNDS);
                 }
                 balance.setAvailableAmount(currentBalance.subtract(sum));
-                balanceService.updateBalance(balance);
-                transactionMapper.insertTransaction(transaction);
             }
+            balanceService.updateBalance(balance);
+            transactionMapper.insertTransaction(transaction);
             balanceService.updateBalance(balance);
         } catch (BusinessException e) {
             throw e;
@@ -95,7 +93,10 @@ public class TransactionService {
         Long accountId = request.getAccountId();
 
         // Check if the account exists
-        accountService.checkAccountExists(accountId);
+        boolean accountExists = accountService.checkAccountExists(accountId);
+        if (!accountExists) {
+            throw new BusinessException(ACCOUNT_NOT_FOUND);
+        }
 
         List<Transaction> transactions = transactionMapper.findTransactionsByAccountId(accountId);
         if (transactions.isEmpty()) {

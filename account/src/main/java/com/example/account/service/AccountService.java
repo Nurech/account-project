@@ -36,6 +36,13 @@ public class AccountService {
     private final BalanceService balanceService;
     private final CurrencyService currencyService;
 
+    /**
+     * Creates an account for a customer
+     * Initial required data: customerId, country, currencies
+     *
+     * @param request AccountCreationRequest
+     * @return AccountCreationResponse
+     */
     public AccountCreationResponse createAccount(AccountCreationRequest request) {
         log.info("Creating account for customer: {}", request.getCustomerId());
 
@@ -47,7 +54,7 @@ public class AccountService {
         account.setCustomerId(request.getCustomerId());
         account.setCountry(request.getCountry());
 
-
+        // check if currencies are acceptable firstw
         for (String currency : request.getCurrencies()) {
             if (!currencyService.isCurrencyAllowed(currency)) {
                 throw new BusinessException(INVALID_CURRENCY, "Currency " + currency + " is not allowed.");
@@ -57,12 +64,12 @@ public class AccountService {
 
         List<Balance> balances = new ArrayList<>();
 
-            // Create balances
-            for (String currency : request.getCurrencies()) {
-                Balance balance = new Balance();
-                balance.setAccountId(account.getId());
-                balance.setCurrency(currency);
-                balance.setAvailableAmount(BigDecimal.ZERO);
+        // Create balances
+        for (String currency : request.getCurrencies()) {
+            Balance balance = new Balance();
+            balance.setAccountId(account.getId());
+            balance.setCurrency(currency);
+            balance.setAvailableAmount(BigDecimal.ZERO);
 
             CreateBalanceRequest balanceCreateRequest = new CreateBalanceRequest(balance);
             CreateBalanceResponse response = balanceService.createAccountBalance(balanceCreateRequest);
@@ -75,6 +82,12 @@ public class AccountService {
     }
 
 
+    /**
+     * Gets account by customer ID
+     *
+     * @param request AccountGetRequest
+     * @return AccountGetResponse
+     */
     @Transactional(readOnly = true)
     public AccountGetResponse getAccount(AccountGetRequest request) {
         Long accountId = request.getAccountId();
@@ -82,7 +95,7 @@ public class AccountService {
         Account account = mapper.findAccountByCustomerId(accountId);
         if (account == null) {
             log.warn("Account not found for ID: {}", accountId);
-            throw new BusinessException(ACCOUNT_NOT_FOUND, "Account with ID " + accountId + " not found.");
+            throw new BusinessException(ACCOUNT_NOT_FOUND);
         }
 
         GetAccountBalancesRequest balanceGetRequest = new GetAccountBalancesRequest(accountId);

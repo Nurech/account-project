@@ -13,11 +13,17 @@ public class CurrencyService {
 
     private final CurrencyMapper currencyMapper;
 
+    /**
+     * Check if the currency is accepted by the system
+     *
+     * @param currency currency to check
+     * @return true if currency is accepted, false otherwise
+     */
     @Cacheable(value = &quot;currency&quot;, key = &quot;#currency&quot;, unless = &quot;#result == null&quot;)
     // Use cache to store the allowed currencies as they are not expected to change frequently
     public boolean isCurrencyAllowed(String currency) {
-<span class="fc" id="L19">        List&lt;String&gt; allowedCurrencies = currencyMapper.findAllowedCurrencies();</span>
-<span class="fc" id="L20">        return allowedCurrencies.contains(currency);</span>
+<span class="fc" id="L25">        List&lt;String&gt; allowedCurrencies = currencyMapper.findAllowedCurrencies();</span>
+<span class="fc" id="L26">        return allowedCurrencies.contains(currency);</span>
     }
 
 }

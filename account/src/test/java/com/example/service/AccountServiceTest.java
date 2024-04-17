@@ -50,9 +50,8 @@ public class AccountServiceTest extends AccountApplicationBaseTest {
         AccountGetRequest request = AccountGetRequest.builder()
                 .accountId(1L)
                 .build();
-        assertThrows(BusinessException.class, () -> {
-            accountService.getAccount(request);
-        }, "Should not have found non existent account.");
+        assertThrows(BusinessException.class, () -> accountService.getAccount(request),
+                "Should not have found non existent account.");
     }
 
     @Test

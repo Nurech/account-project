@@ -56,66 +56,67 @@ public class TransactionService {
 
 <span class="nc bnc" id="L57" title="All 2 branches missed.">            if (transaction.getTransactionDirection().equals(&quot;IN&quot;)) {</span>
 <span class="nc" id="L58">                balance.setAvailableAmount(currentBalance.add(sum));</span>
-<span class="nc" id="L59">                balanceService.updateBalance(balance);</span>
-<span class="nc" id="L60">                transactionMapper.insertTransaction(transaction);</span>
             } else {
-<span class="nc bnc" id="L62" title="All 2 branches missed.">                if (currentBalance.subtract(sum).compareTo(BigDecimal.ZERO) &lt; 0) {</span>
-<span class="nc" id="L63">                    log.warn(&quot;Insufficient funds for accountId: {}, required: {}, available: {}&quot;, transaction.getAccountId(), sum, currentBalance);</span>
-<span class="nc" id="L64">                    throw new BusinessException(INSUFFICIENT_FUNDS);</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">                if (currentBalance.subtract(sum).compareTo(BigDecimal.ZERO) &lt; 0) {</span>
+<span class="nc" id="L61">                    log.warn(&quot;Insufficient funds for accountId: {}, required: {}, available: {}&quot;, transaction.getAccountId(), sum, currentBalance);</span>
+<span class="nc" id="L62">                    throw new BusinessException(INSUFFICIENT_FUNDS);</span>
                 }
-<span class="nc" id="L66">                balance.setAvailableAmount(currentBalance.subtract(sum));</span>
-<span class="nc" id="L67">                balanceService.updateBalance(balance);</span>
-<span class="nc" id="L68">                transactionMapper.insertTransaction(transaction);</span>
+<span class="nc" id="L64">                balance.setAvailableAmount(currentBalance.subtract(sum));</span>
             }
-<span class="nc" id="L70">            balanceService.updateBalance(balance);</span>
-<span class="nc" id="L71">        } catch (BusinessException e) {</span>
-<span class="nc" id="L72">            throw e;</span>
-<span class="nc" id="L73">        } catch (Exception e) {</span>
-<span class="nc" id="L74">            log.error(&quot;Unhandled error while processing transaction&quot;, e);</span>
-<span class="nc" id="L75">            throw new BusinessException(TRANSACTION_PROCESSING_ERROR);</span>
-<span class="nc" id="L76">        }</span>
+<span class="nc" id="L66">            balanceService.updateBalance(balance);</span>
+<span class="nc" id="L67">            transactionMapper.insertTransaction(transaction);</span>
+<span class="nc" id="L68">            balanceService.updateBalance(balance);</span>
+<span class="nc" id="L69">        } catch (BusinessException e) {</span>
+<span class="nc" id="L70">            throw e;</span>
+<span class="nc" id="L71">        } catch (Exception e) {</span>
+<span class="nc" id="L72">            log.error(&quot;Unhandled error while processing transaction&quot;, e);</span>
+<span class="nc" id="L73">            throw new BusinessException(TRANSACTION_PROCESSING_ERROR);</span>
+<span class="nc" id="L74">        }</span>
 
-<span class="nc" id="L78">        return buildTransactionResponse(transaction, balance);</span>
+<span class="nc" id="L76">        return buildTransactionResponse(transaction, balance);</span>
     }
 
     private TransactionResponse buildTransactionResponse(Transaction transaction, Balance balance) {
-<span class="nc" id="L82">        return new TransactionResponse(</span>
-<span class="nc" id="L83">                transaction.getAccountId(),</span>
-<span class="nc" id="L84">                transaction.getId(),</span>
-<span class="nc" id="L85">                transaction.getAmount(),</span>
-<span class="nc" id="L86">                transaction.getCurrency(),</span>
-<span class="nc" id="L87">                transaction.getTransactionDirection(),</span>
-<span class="nc" id="L88">                transaction.getDescription(),</span>
-<span class="nc" id="L89">                balance.getAvailableAmount()</span>
+<span class="nc" id="L80">        return new TransactionResponse(</span>
+<span class="nc" id="L81">                transaction.getAccountId(),</span>
+<span class="nc" id="L82">                transaction.getId(),</span>
+<span class="nc" id="L83">                transaction.getAmount(),</span>
+<span class="nc" id="L84">                transaction.getCurrency(),</span>
+<span class="nc" id="L85">                transaction.getTransactionDirection(),</span>
+<span class="nc" id="L86">                transaction.getDescription(),</span>
+<span class="nc" id="L87">                balance.getAvailableAmount()</span>
         );
     }
 
 
     public TransactionsByAccountResponse getTransactions(TransactionsByAccountRequest request) {
-<span class="nc" id="L95">        Long accountId = request.getAccountId();</span>
+<span class="nc" id="L93">        Long accountId = request.getAccountId();</span>
 
         // Check if the account exists
-<span class="nc" id="L98">        accountService.checkAccountExists(accountId);</span>
-
-<span class="nc" id="L100">        List&lt;Transaction&gt; transactions = transactionMapper.findTransactionsByAccountId(accountId);</span>
-<span class="nc bnc" id="L101" title="All 2 branches missed.">        if (transactions.isEmpty()) {</span>
-<span class="nc" id="L102">            throw new BusinessException(NO_TRANSACTIONS);</span>
+<span class="nc" id="L96">        boolean accountExists = accountService.checkAccountExists(accountId);</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        if (!accountExists) {</span>
+<span class="nc" id="L98">            throw new BusinessException(ACCOUNT_NOT_FOUND);</span>
         }
 
-<span class="nc" id="L105">        return new TransactionsByAccountResponse(accountId, transactions);</span>
+<span class="nc" id="L101">        List&lt;Transaction&gt; transactions = transactionMapper.findTransactionsByAccountId(accountId);</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (transactions.isEmpty()) {</span>
+<span class="nc" id="L103">            throw new BusinessException(NO_TRANSACTIONS);</span>
+        }
+
+<span class="nc" id="L106">        return new TransactionsByAccountResponse(accountId, transactions);</span>
     }
 
     private void validateRequest(TransactionRequest request) {
-<span class="nc bnc" id="L109" title="All 2 branches missed.">        if (request.getAmount().compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
-<span class="nc" id="L110">            throw new BusinessException(NEGATIVE_AMOUNT);</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (request.getAmount().compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
+<span class="nc" id="L111">            throw new BusinessException(NEGATIVE_AMOUNT);</span>
         }
-<span class="nc bnc" id="L112" title="All 4 branches missed.">        if (!request.getTransactionDirection().equals(&quot;IN&quot;) &amp;&amp; !request.getTransactionDirection().equals(&quot;OUT&quot;)) {</span>
-<span class="nc" id="L113">            throw new BusinessException(INVALID_DIRECTION);</span>
+<span class="nc bnc" id="L113" title="All 4 branches missed.">        if (!request.getTransactionDirection().equals(&quot;IN&quot;) &amp;&amp; !request.getTransactionDirection().equals(&quot;OUT&quot;)) {</span>
+<span class="nc" id="L114">            throw new BusinessException(INVALID_DIRECTION);</span>
         }
-<span class="nc bnc" id="L115" title="All 4 branches missed.">        if (request.getDescription() == null || request.getDescription().isEmpty()) {</span>
-<span class="nc" id="L116">            throw new BusinessException(DESCRIPTION_MISSING);</span>
+<span class="nc bnc" id="L116" title="All 4 branches missed.">        if (request.getDescription() == null || request.getDescription().isEmpty()) {</span>
+<span class="nc" id="L117">            throw new BusinessException(DESCRIPTION_MISSING);</span>
         }
-<span class="nc" id="L118">    }</span>
+<span class="nc" id="L119">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

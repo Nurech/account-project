@@ -20,20 +20,30 @@ public class BalanceService {
     private final MessageProcessingService messageProcessingService;
 
 
+    /**
+     * Opens balance(s) for Account with given currency with initial balance value of 0
+     * @param request CreateBalanceRequest
+     * @return CreateBalanceResponse
+     */
     public CreateBalanceResponse createAccountBalance(CreateBalanceRequest request) {
-<span class="fc" id="L24">        ParameterizedTypeReference&lt;ResponseWrapperDTO&lt;CreateBalanceResponse&gt;&gt; responseType = new ParameterizedTypeReference&lt;&gt;() {};</span>
-<span class="fc" id="L25">        ResponseWrapperDTO&lt;CreateBalanceResponse&gt; response = rabbitTemplate.convertSendAndReceiveAsType(</span>
+<span class="fc" id="L29">        ParameterizedTypeReference&lt;ResponseWrapperDTO&lt;CreateBalanceResponse&gt;&gt; responseType = new ParameterizedTypeReference&lt;&gt;() {};</span>
+<span class="fc" id="L30">        ResponseWrapperDTO&lt;CreateBalanceResponse&gt; response = rabbitTemplate.convertSendAndReceiveAsType(</span>
                 &quot;balance.exchange&quot;, &quot;create.balance&quot;, request, responseType
         );
-<span class="fc" id="L28">        return messageProcessingService.processResponseWrapper(response);</span>
+<span class="fc" id="L33">        return messageProcessingService.processResponseWrapper(response);</span>
     }
 
+    /**
+     * Gets all balances for given accountId
+     * @param request GetAccountBalancesRequest
+     * @return GetAccountBalancesResponse
+     */
     public GetAccountBalancesResponse getAccountBalances(GetAccountBalancesRequest request) {
-<span class="fc" id="L32">        ParameterizedTypeReference&lt;ResponseWrapperDTO&lt;GetAccountBalancesResponse&gt;&gt; response = new ParameterizedTypeReference&lt;&gt;() {};</span>
-<span class="fc" id="L33">        ResponseWrapperDTO&lt;GetAccountBalancesResponse&gt; responseWrapperDTO = rabbitTemplate.convertSendAndReceiveAsType(</span>
+<span class="fc" id="L42">        ParameterizedTypeReference&lt;ResponseWrapperDTO&lt;GetAccountBalancesResponse&gt;&gt; response = new ParameterizedTypeReference&lt;&gt;() {};</span>
+<span class="fc" id="L43">        ResponseWrapperDTO&lt;GetAccountBalancesResponse&gt; responseWrapperDTO = rabbitTemplate.convertSendAndReceiveAsType(</span>
                 &quot;balance.exchange&quot;, &quot;get.balances&quot;, request, response
         );
-<span class="fc" id="L36">        return messageProcessingService.processResponseWrapper(responseWrapperDTO);</span>
+<span class="fc" id="L46">        return messageProcessingService.processResponseWrapper(responseWrapperDTO);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

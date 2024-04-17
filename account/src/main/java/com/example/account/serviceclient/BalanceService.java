@@ -20,6 +20,11 @@ public class BalanceService {
     private final MessageProcessingService messageProcessingService;
 
 
+    /**
+     * Opens balance(s) for Account with given currency with initial balance value of 0
+     * @param request CreateBalanceRequest
+     * @return CreateBalanceResponse
+     */
     public CreateBalanceResponse createAccountBalance(CreateBalanceRequest request) {
         ParameterizedTypeReference<ResponseWrapperDTO<CreateBalanceResponse>> responseType = new ParameterizedTypeReference<>() {};
         ResponseWrapperDTO<CreateBalanceResponse> response = rabbitTemplate.convertSendAndReceiveAsType(
@@ -28,6 +33,11 @@ public class BalanceService {
         return messageProcessingService.processResponseWrapper(response);
     }
 
+    /**
+     * Gets all balances for given accountId
+     * @param request GetAccountBalancesRequest
+     * @return GetAccountBalancesResponse
+     */
     public GetAccountBalancesResponse getAccountBalances(GetAccountBalancesRequest request) {
         ParameterizedTypeReference<ResponseWrapperDTO<GetAccountBalancesResponse>> response = new ParameterizedTypeReference<>() {};
         ResponseWrapperDTO<GetAccountBalancesResponse> responseWrapperDTO = rabbitTemplate.convertSendAndReceiveAsType(

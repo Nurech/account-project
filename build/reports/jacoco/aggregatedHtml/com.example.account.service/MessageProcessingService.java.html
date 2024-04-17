@@ -12,17 +12,29 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class MessageProcessingService {
 
+    /**
+     * Processes the response from RabbitMQ
+     * Helps to handle the responses and throw exceptions if necessary
+     * Useful to handle synchronous messaging between producers and consumers
+     *
+     * @param response response from RabbitMQ
+     * @param T        type of the data in the response (can be any from domain)
+     * @return data of domain class T type
+     * @throws BusinessException             if there is a business error in the response
+     * @throws NoResponseFromRabbitException if there is no ResponseWrapperDTO
+     *                                       received from RabbitMQ in reasonable time
+     */
     public &lt;T&gt; T processResponseWrapper(ResponseWrapperDTO&lt;T&gt; response) throws BusinessException, NoResponseFromRabbitException {
-<span class="pc bpc" id="L16" title="1 of 2 branches missed.">        if (response == null) {</span>
-<span class="nc" id="L17">            throw new NoResponseFromRabbitException(&quot;No valid response data received from RabbitMQ&quot;);</span>
-<span class="pc bpc" id="L18" title="1 of 2 branches missed.">        } else if (response.hasError()) {</span>
-<span class="nc" id="L19">            ErrorDTO error = response.getError();</span>
-<span class="nc" id="L20">            ErrorCode errorCode = ErrorCode.fromCode(error.getErrorCode());</span>
-<span class="nc" id="L21">            throw new BusinessException(errorCode, error.getErrorMessage());</span>
-<span class="pc bpc" id="L22" title="1 of 2 branches missed.">        } else if (response.getData() == null) {</span>
-<span class="nc" id="L23">            throw new NoResponseFromRabbitException(&quot;No valid response data received from RabbitMQ&quot;);</span>
+<span class="pc bpc" id="L28" title="1 of 2 branches missed.">        if (response == null) {</span>
+<span class="nc" id="L29">            throw new NoResponseFromRabbitException(&quot;No valid response data received from RabbitMQ&quot;);</span>
+<span class="pc bpc" id="L30" title="1 of 2 branches missed.">        } else if (response.hasError()) {</span>
+<span class="nc" id="L31">            ErrorDTO error = response.getError();</span>
+<span class="nc" id="L32">            ErrorCode errorCode = ErrorCode.fromCode(error.getErrorCode());</span>
+<span class="nc" id="L33">            throw new BusinessException(errorCode, error.getErrorMessage());</span>
+<span class="pc bpc" id="L34" title="1 of 2 branches missed.">        } else if (response.getData() == null) {</span>
+<span class="nc" id="L35">            throw new NoResponseFromRabbitException(&quot;No valid response data received from RabbitMQ&quot;);</span>
         }
-<span class="fc" id="L25">        return response.getData();</span>
+<span class="fc" id="L37">        return response.getData();</span>
     }
 
 }

@@ -13,6 +13,12 @@ public class CurrencyService {
 
     private final CurrencyMapper currencyMapper;
 
+    /**
+     * Check if the currency is accepted by the system
+     *
+     * @param currency currency to check
+     * @return true if currency is accepted, false otherwise
+     */
     @Cacheable(value = "currency", key = "#currency", unless = "#result == null")
     // Use cache to store the allowed currencies as they are not expected to change frequently
     public boolean isCurrencyAllowed(String currency) {

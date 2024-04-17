@@ -37,7 +37,7 @@ public class AccountApplicationBaseTest {
      * 'integrationTest' and then we build containers.
      */
 
-    private static Network network = Network.newNetwork();
+    private static final Network network = Network.newNetwork();
 
     @Container
     public static final RabbitMQContainer rabbitMqContainer = new RabbitMQContainer("rabbitmq:3-management")

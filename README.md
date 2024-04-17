@@ -224,6 +224,18 @@ Though it might be tricky scaling rabbitMQ itself. But should be doable with mul
 ## Performance
 Stress tests implemented using JMeter indicate transaction handling capabilities; details available in report.
 Though testing results don't reflect actual capabilities, it is limited to due to running on a local machine.
+Test ran with 1000 threads, 1000 loops with ramp-up period of 60 seconds.
+From the plot, it is evident that the system can handle a large number of transactions,
+but started failing at around 5000 per second, 
+which is acceptable for a small system but could be improved by optimizing the code and database queries.
+Test params: test machine is a 4-core wIntel i7-7700HQ with 32GB RAM.
+Project was running on docker with 16GB RAM allocated. JVM_OPTS(default)
+```bash
+
+See JMeter results and source files in the jmeter folder.
+```bash
+cd account-project/jmeter/
+```
 
 ## Error Handling
 Could be improved by implementing DLX, asynchronous error handling with RabbitMQ or by other means,
