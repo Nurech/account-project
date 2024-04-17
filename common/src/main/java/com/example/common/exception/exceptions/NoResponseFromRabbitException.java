@@ -1,7 +1,9 @@
 package com.example.common.exception.exceptions;
 
+import lombok.Getter;
+
+@Getter
 public class NoResponseFromRabbitException extends RuntimeException {
-    private static final long serialVersionUID = 1L;
 
     private final Object request;
 
@@ -10,7 +12,4 @@ public class NoResponseFromRabbitException extends RuntimeException {
         this.request = request;
     }
 
-    public Object getRequest() {
-        return request;
-    }
 }

@@ -19,4 +19,5 @@ public class CurrencyService {
         List<String> allowedCurrencies = currencyMapper.findAllowedCurrencies();
         return allowedCurrencies.contains(currency);
     }
+
 }

@@ -1,13 +1,14 @@
 package com.example.transaction.service;
 
-import com.example.common.dto.transaction.TransactionRequest;
-import com.example.common.dto.transaction.TransactionResponse;
-import com.example.common.dto.transaction.TransactionsByAccountRequest;
-import com.example.common.dto.transaction.TransactionsByAccountResponse;
+import com.example.common.domain.transaction.TransactionRequest;
+import com.example.common.domain.transaction.TransactionResponse;
+import com.example.common.domain.transaction.TransactionsByAccountRequest;
+import com.example.common.domain.transaction.TransactionsByAccountResponse;
 import com.example.common.exception.exceptions.BusinessException;
 import com.example.common.model.Balance;
 import com.example.transaction.mappers.TransactionMapper;
 import com.example.common.model.Transaction;
+import com.example.transaction.serviceclient.AccountService;
 import com.example.transaction.serviceclient.BalanceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,13 +24,16 @@ import static com.example.common.exception.enums.ErrorCode.*;
 @Slf4j
 @RequiredArgsConstructor
 public class TransactionService {
+
     private final TransactionMapper transactionMapper;
     private final BalanceService balanceService;
+    private final AccountService accountService;
 
     /**
      * Client created transaction, which can be either IN or OUT.
      * If the transaction is OUT and the account has insufficient funds,
      * the transaction will be rejected and account balance will remain unchanged.
+     *
      * @param request TransactionRequest
      * @return TransactionResponse
      */
@@ -65,13 +69,7 @@ public class TransactionService {
             }
             balanceService.updateBalance(balance);
         } catch (BusinessException e) {
-            if (e.getCode().equals(INSUFFICIENT_FUNDS.getCode())) {
-                log.warn("Attempt to withdraw more than available: {}", e.getMessage());
-                balance = balanceService.getAccountBalanceByCurrency(transaction.getAccountId(), transaction.getCurrency()); // Re-fetch balance to ensure it's the latest
-            } else {
-                log.error("Error while processing transaction", e);
-                throw e;
-            }
+            throw e;
         } catch (Exception e) {
             log.error("Unhandled error while processing transaction", e);
             throw new BusinessException(TRANSACTION_PROCESSING_ERROR);
@@ -95,7 +93,15 @@ public class TransactionService {
 
     public TransactionsByAccountResponse getTransactions(TransactionsByAccountRequest request) {
         Long accountId = request.getAccountId();
+
+        // Check if the account exists
+        accountService.checkAccountExists(accountId);
+
         List<Transaction> transactions = transactionMapper.findTransactionsByAccountId(accountId);
+        if (transactions.isEmpty()) {
+            throw new BusinessException(NO_TRANSACTIONS);
+        }
+
         return new TransactionsByAccountResponse(accountId, transactions);
     }
 
@@ -105,6 +111,9 @@ public class TransactionService {
         }
         if (!request.getTransactionDirection().equals("IN") && !request.getTransactionDirection().equals("OUT")) {
             throw new BusinessException(INVALID_DIRECTION);
+        }
+        if (request.getDescription() == null || request.getDescription().isEmpty()) {
+            throw new BusinessException(DESCRIPTION_MISSING);
         }
     }
 

@@ -1,9 +1,9 @@
 package com.example.common.gateway.transaction;
 
-import com.example.common.dto.transaction.TransactionRequest;
-import com.example.common.dto.transaction.TransactionResponse;
-import com.example.common.dto.transaction.TransactionsByAccountRequest;
-import com.example.common.dto.transaction.TransactionsByAccountResponse;
+import com.example.common.domain.transaction.TransactionRequest;
+import com.example.common.domain.transaction.TransactionResponse;
+import com.example.common.domain.transaction.TransactionsByAccountRequest;
+import com.example.common.domain.transaction.TransactionsByAccountResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

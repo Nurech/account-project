@@ -35,3 +35,5 @@ out/
 
 ### VS Code ###
 .vscode/
+
+!account-project/account/build/reports/jacoco/integrationTest/html/

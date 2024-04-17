@@ -1,5 +1,4 @@
 rootProject.name = 'account-project'
-include 'code-coverage-report'
 
 include ':common'
 include ':account'

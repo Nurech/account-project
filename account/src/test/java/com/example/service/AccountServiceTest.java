@@ -5,14 +5,13 @@ import com.example.account.listener.AccountMessageListener;
 import com.example.account.mappers.AccountMapper;
 import com.example.account.publisher.MessagePublisher;
 import com.example.account.service.AccountService;
-import com.example.common.dto.account.AccountCreationRequest;
-import com.example.common.dto.account.AccountCreationResponse;
-import com.example.common.dto.account.AccountGetRequest;
-import com.example.common.dto.account.AccountGetResponse;
+import com.example.common.domain.account.AccountCreationRequest;
+import com.example.common.domain.account.AccountCreationResponse;
+import com.example.common.domain.account.AccountGetRequest;
+import com.example.common.domain.account.AccountGetResponse;
 import com.example.common.exception.exceptions.BusinessException;
 import com.example.common.model.Account;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 
 import java.util.List;

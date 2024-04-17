@@ -1,9 +1,10 @@
 package com.example.common.gateway.account;
 
-import com.example.common.dto.account.AccountCreationRequest;
-import com.example.common.dto.account.AccountCreationResponse;
-import com.example.common.dto.account.AccountGetRequest;
-import com.example.common.dto.account.AccountGetResponse;
+import com.example.common.domain.account.AccountCreationRequest;
+import com.example.common.domain.account.AccountCreationResponse;
+import com.example.common.domain.account.AccountGetRequest;
+import com.example.common.domain.account.AccountGetResponse;
+import com.example.common.exception.exceptions.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -19,23 +20,13 @@ public class AccountController {
 
     @PostMapping
     public ResponseEntity<AccountCreationResponse> createAccount(@RequestBody AccountCreationRequest request) {
-        try {
-            AccountCreationResponse response = accountService.createAccount(request);
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            log.error("Failed to create account", e);
-            return ResponseEntity.badRequest().body(null);
-        }
+        AccountCreationResponse response = accountService.createAccount(request);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping
     public ResponseEntity<AccountGetResponse> getAccount(@RequestBody AccountGetRequest request) {
-        try {
-            AccountGetResponse response = accountService.getAccount(request);
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            log.error("Failed to get account", e);
-            return ResponseEntity.badRequest().body(null);
-        }
+        AccountGetResponse response = accountService.getAccount(request);
+        return ResponseEntity.ok(response);
     }
 }

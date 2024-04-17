@@ -145,8 +145,8 @@ public class AccountApplicationBaseTest {
 
         // Start all containers
         commonContainer.start();
-        balanceContainer.start();
         transactionContainer.start();
+        balanceContainer.start();
     }
 
 

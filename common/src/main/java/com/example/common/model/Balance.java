@@ -1,12 +1,12 @@
 package com.example.common.model;
 
 import lombok.Data;
-import org.antlr.v4.runtime.misc.NotNull;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Data
-public class Balance {
+public class Balance implements Serializable {
     private Long id;
     private Long accountId;
     private String currency;

@@ -17,12 +17,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<Object> handleBusinessException(BusinessException e) {
-        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-
-        if (Objects.equals(e.getCode(), ACCOUNT_NOT_FOUND.getCode())) {
-            status = HttpStatus.NOT_FOUND; // 404
-        }
-
+        HttpStatus status = HttpStatus.NOT_FOUND;
         return new ResponseEntity<>(new ErrorResponse(e.getCode(), e.getMessage()), status);
     }
 
@@ -32,10 +27,6 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(RABBIT_NO_ANSWER.getCode(), RABBIT_NO_ANSWER.getMessage()));
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Object> handleGeneralException(Exception ignored) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse(UNKNOWN_ERROR.getCode(), UNKNOWN_ERROR.getMessage()));
-    }
+
 }
 

@@ -1,42 +1,36 @@
 package com.example.common.gateway.transaction;
 
-import com.example.common.dto.transaction.TransactionRequest;
-import com.example.common.dto.transaction.TransactionResponse;
-import com.example.common.dto.transaction.TransactionsByAccountRequest;
-import com.example.common.dto.transaction.TransactionsByAccountResponse;
-import com.example.common.exception.exceptions.NoResponseFromRabbitException;
+import com.example.common.dto.ResponseWrapperDTO;
+import com.example.common.service.MessageProcessingService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.amqp.core.MessagePostProcessor;
-import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
+import com.example.common.domain.transaction.TransactionRequest;
+import com.example.common.domain.transaction.TransactionResponse;
+import com.example.common.domain.transaction.TransactionsByAccountRequest;
+import com.example.common.domain.transaction.TransactionsByAccountResponse;
 
 @Service
 @RequiredArgsConstructor
 public class TransactionService {
 
     private final RabbitTemplate rabbitTemplate;
-
-    private final MessagePostProcessor jsonMessagePostProcessor = message -> {
-        message.getMessageProperties().setContentType(MessageProperties.CONTENT_TYPE_JSON);
-        return message;
-    };
+    private final MessageProcessingService messageProcessingService;
 
     public TransactionResponse createTransaction(TransactionRequest request) {
-        TransactionResponse response = (TransactionResponse) rabbitTemplate.convertSendAndReceive(
-                "transaction.exchange", "transaction.create", request, jsonMessagePostProcessor);
-        if (response == null) {
-            throw new NoResponseFromRabbitException(request);
-        }
-        return response;
+        ParameterizedTypeReference<ResponseWrapperDTO<TransactionResponse>> responseType = new ParameterizedTypeReference<>() {
+        };
+        ResponseWrapperDTO<TransactionResponse> response = rabbitTemplate.convertSendAndReceiveAsType(
+                "transaction.exchange", "transaction.create", request, responseType);
+        return messageProcessingService.processResponseWrapper(response);
     }
 
     public TransactionsByAccountResponse getTransactionsByAccountId(TransactionsByAccountRequest request) {
-        TransactionsByAccountResponse response = (TransactionsByAccountResponse) rabbitTemplate.convertSendAndReceive(
-                "transaction.exchange", "get.transactions.by.account.id", request, jsonMessagePostProcessor);
-        if (response == null) {
-            throw new NoResponseFromRabbitException(request);
-        }
-        return response;
+        ParameterizedTypeReference<ResponseWrapperDTO<TransactionsByAccountResponse>> responseType = new ParameterizedTypeReference<>() {
+        };
+        ResponseWrapperDTO<TransactionsByAccountResponse> response = rabbitTemplate.convertSendAndReceiveAsType(
+                "transaction.exchange", "get.transactions.by.account.id", request, responseType);
+        return messageProcessingService.processResponseWrapper(response);
     }
 }

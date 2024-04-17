@@ -1,20 +1,21 @@
 package com.example.account.service;
 
 import com.example.account.serviceclient.CurrencyService;
-import com.example.common.dto.account.AccountCreationRequest;
-import com.example.common.dto.account.AccountCreationResponse;
-import com.example.common.dto.account.AccountGetRequest;
-import com.example.common.dto.account.AccountGetResponse;
+import com.example.common.domain.account.AccountCreationRequest;
+import com.example.common.domain.account.AccountCreationResponse;
+import com.example.common.domain.account.AccountGetRequest;
+import com.example.common.domain.account.AccountGetResponse;
 import com.example.account.mappers.AccountMapper;
-import com.example.common.dto.balance.CreateBalanceRequest;
-import com.example.common.dto.balance.CreateBalanceResponse;
-import com.example.common.dto.balance.GetAccountBalancesRequest;
-import com.example.common.dto.balance.GetAccountBalancesResponse;
+import com.example.common.domain.balance.CreateBalanceRequest;
+import com.example.common.domain.balance.CreateBalanceResponse;
+import com.example.common.domain.balance.GetAccountBalancesRequest;
+import com.example.common.domain.balance.GetAccountBalancesResponse;
 import com.example.common.model.Account;
 import com.example.account.publisher.MessagePublisher;
 import com.example.account.serviceclient.BalanceService;
 import com.example.common.exception.exceptions.BusinessException;
 import com.example.common.model.Balance;
+import com.example.common.model.Currency;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,16 +42,15 @@ public class AccountService {
         account.setCustomerId(request.getCustomerId());
         account.setCountry(request.getCountry());
 
-        try {
 
-            for (String currency : request.getCurrencies()) {
-                if (!currencyService.isCurrencyAllowed(currency)) {
-                    throw new BusinessException(INVALID_CURRENCY, "Currency " + currency + " is not allowed.");
-                }
+        for (String currency : request.getCurrencies()) {
+            if (!currencyService.isCurrencyAllowed(currency)) {
+                throw new BusinessException(INVALID_CURRENCY, "Currency " + currency + " is not allowed.");
             }
-            mapper.insertAccount(account);
+        }
+        mapper.insertAccount(account);
 
-            List<Balance> balances = new ArrayList<>();
+        List<Balance> balances = new ArrayList<>();
 
             // Create balances
             for (String currency : request.getCurrencies()) {
@@ -59,17 +59,13 @@ public class AccountService {
                 balance.setCurrency(currency);
                 balance.setAvailableAmount(BigDecimal.ZERO);
 
-                CreateBalanceRequest balanceCreateRequest = new CreateBalanceRequest(balance);
-                CreateBalanceResponse response = balanceService.createAccountBalance(balanceCreateRequest);
-                balances.addAll(response.getBalances());
-            }
-
-            accountMessagePublisher.publishAccountCreated(account);
-            return new AccountCreationResponse(account.getId(), account.getCustomerId(), balances);
-
-        } catch (BusinessException e) {
-            throw e; // rethrow the exception to be handled by the controller
+            CreateBalanceRequest balanceCreateRequest = new CreateBalanceRequest(balance);
+            CreateBalanceResponse response = balanceService.createAccountBalance(balanceCreateRequest);
+            balances.addAll(response.getBalances());
         }
+
+        accountMessagePublisher.publishAccountCreated(account);
+        return new AccountCreationResponse(account.getId(), account.getCustomerId(), balances);
 
     }
 

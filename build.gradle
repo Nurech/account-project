@@ -78,7 +78,6 @@ ext {
 
 tasks.register('copyArtifactsForIntegrationTest', Copy) {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
-    dependsOn 'build'
     from('balance/build/libs') { include '*SNAPSHOT.jar' }
     from('transaction/build/libs') { include '*SNAPSHOT.jar' }
     from('common/build/libs') { include '*SNAPSHOT.jar' }
@@ -95,11 +94,6 @@ tasks.register('integrationTest', Test) {
         it.sourceSets.test.output.classesDirs
     })
     useJUnitPlatform()
-}
-
-tasks.named('processTestResources') {
-    mustRunAfter 'copyArtifactsForIntegrationTest'
-    dependsOn 'copyArtifactsForIntegrationTest'
 }
 
 tasks.register('jacocoRootReport', JacocoReport) {
@@ -135,5 +129,3 @@ tasks.register('aggregateTestReports') {
     }
 }
 
-check.dependsOn jacocoRootReport
-check.dependsOn aggregateTestReports

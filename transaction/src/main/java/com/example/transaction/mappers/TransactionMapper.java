@@ -9,8 +9,8 @@ import java.util.List;
 @Mapper
 public interface TransactionMapper {
 
-    @Insert("INSERT INTO transactions (account_id, amount, currency, transaction_direction, description, transaction_date) " +
-            "VALUES (#{accountId}, #{amount}, #{currency}, #{transactionDirection}, #{description}, CURRENT_TIMESTAMP)")
+    @Insert("INSERT INTO transactions (account_id, amount, currency_id, transaction_direction, description, transaction_date) " +
+            "VALUES (#{accountId}, #{amount}, (SELECT id FROM currencies WHERE code = #{currency}), #{transactionDirection}, #{description}, CURRENT_TIMESTAMP)")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     void insertTransaction(Transaction transaction);
 
@@ -23,8 +23,14 @@ public interface TransactionMapper {
             @Result(property = "description", column = "description"),
             @Result(property = "transactionDate", column = "transaction_date", javaType = OffsetDateTime.class)
     })
-    @Select("SELECT id, account_id, amount, currency, transaction_direction, description, transaction_date FROM transactions WHERE account_id = #{accountId}")
+    @Select("SELECT t.id, t.account_id, t.amount, c.code as currency, t.transaction_direction, t.description, t.transaction_date " +
+            "FROM transactions t " +
+            "JOIN currencies c ON t.currency_id = c.id " +
+            "WHERE t.account_id = #{accountId}")
     List<Transaction> findTransactionsByAccountId(Long accountId);
+
+
+
 
 
 }

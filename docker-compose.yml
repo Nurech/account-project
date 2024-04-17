@@ -35,17 +35,6 @@ services:
     ports:
       - "8081:8081"
 
-  balance:
-    build:
-      context: .
-      dockerfile: Dockerfile-balance
-    depends_on:
-      - postgres
-      - common
-      - account
-    ports:
-      - "8082:8082"
-
   transaction:
     build:
       context: .
@@ -56,3 +45,15 @@ services:
       - account
     ports:
       - "8083:8083"
+
+  balance:
+    build:
+      context: .
+      dockerfile: Dockerfile-balance
+    depends_on:
+      - postgres
+      - common
+      - account
+      - transaction
+    ports:
+      - "8082:8082"
