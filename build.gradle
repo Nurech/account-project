@@ -156,3 +156,9 @@ tasks.register('aggregateTestReports') {
     }
 }
 
+configurations {
+    integTestImplementation.extendsFrom testImplementation
+    integTestRuntimeOnly.extendsFrom testRuntimeOnly
+}
+
+check.dependsOn integrationTest
