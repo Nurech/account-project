@@ -12,6 +12,8 @@ account-project/
 |-- account/
 |-- transaction/
 |-- balance/
+|-- jmeter/ (stress test)
+|-- build/reports (test reports)
 ````
 
 ## Database
@@ -56,6 +58,9 @@ Manages accounts and their balances. Publishes all insert and update operations 
     - **Input:** Customer ID, Country, List of currencies
     - **Output:** Account ID, Customer ID, List of balances
     - **Errors:** Invalid currency
+
+If localhost fails, try 127.0.0.1
+If some container fails to start, try restarting the container. Healthcheck ordering might not be robust enough for all cases.
 
 Request (Make account - OK):
 ````bash
@@ -194,20 +199,14 @@ To run tests:
 ```bash
 cd account-project/
 ./gradlew integrationTest 
-./gradlew jacocoRootReport
-./gradlew jacocoTestCoverageVerification
 ```
 ![img.png](img.png)
 To produce reports (though already included in the project):
+https://github.com/Nurech/account-project/tree/master/build/reports/jacoco
 ```bash
 cd account-project/
 ./gradlew jacocoRootReport
 ./gradlew jacocoTestCoverageVerification
-```
-Test report available at:
-```bash
-cd account-project/
-start "" build/reports/tests/integrationTest/index.html
 ```
 ![img_4.png](img_4.png)
 Coverage report available at:
@@ -253,13 +252,13 @@ Errors start to appear from ~1500 threads.
 Bottleneck is RabitMQ, as it's not able to handle as many requests, 
 the queue increases, possible starting to write messages to disk
 and messages start to timeout and are lost. Throughput is in the 60-90 requests per-second range.
+
 ## Error Handling
 Could be improved by implementing DLX, asynchronous error handling with RabbitMQ or by other means,
 if more complex producer consumer scenarios are required,
 but for now ResponseWrapperDTO is used to handle synchronous errors.
 
 ## Considerations
-- MonoRepo structure is used for this project, which is beneficial for managing multiple microservices in a single repository.
-Gradle is used for dependency management, and Docker for containerization.
-Though in production, it is recommended to use separate repositories for each microservice.
-- Microservices Transaction should be implemented as the complexity grows, either with two-phase commit or Saga pattern, to ensure data consistency.
+- MonoRepo structure is used for this project, which is beneficial for managing multiple microservices in a single repository. Though in production, it is recommended to use separate repositories for each microservice. 
+- BigDecimal is used for precision when dealing with numbers, bit cumbersome, but I imagine it (or something similar) being necessary for financial applications. Pennies lead to dollars...
+- Better transaction management/rollback mechanism should be implemented as the complexity grows, either with two-phase commit or Saga pattern, to ensure data consistency.
