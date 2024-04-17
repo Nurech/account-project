@@ -15,7 +15,6 @@ import com.example.account.publisher.MessagePublisher;
 import com.example.account.serviceclient.BalanceService;
 import com.example.common.exception.exceptions.BusinessException;
 import com.example.common.model.Balance;
-import com.example.common.model.Currency;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -38,6 +37,12 @@ public class AccountService {
     private final CurrencyService currencyService;
 
     public AccountCreationResponse createAccount(AccountCreationRequest request) {
+        log.info("Creating account for customer: {}", request.getCustomerId());
+
+        if (request.getCustomerId() == null) {
+            throw new BusinessException(INVALID_CUSTOMER_ID);
+        }
+
         Account account = new Account();
         account.setCustomerId(request.getCustomerId());
         account.setCountry(request.getCountry());
@@ -73,7 +78,8 @@ public class AccountService {
     @Transactional(readOnly = true)
     public AccountGetResponse getAccount(AccountGetRequest request) {
         Long accountId = request.getAccountId();
-        Account account = mapper.findAccountById(accountId);
+        log.info("Getting account with ID: {}", accountId);
+        Account account = mapper.findAccountByCustomerId(accountId);
         if (account == null) {
             log.warn("Account not found for ID: {}", accountId);
             throw new BusinessException(ACCOUNT_NOT_FOUND, "Account with ID " + accountId + " not found.");

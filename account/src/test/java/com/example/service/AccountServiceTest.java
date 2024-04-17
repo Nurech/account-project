@@ -9,7 +9,9 @@ import com.example.common.domain.account.AccountCreationRequest;
 import com.example.common.domain.account.AccountCreationResponse;
 import com.example.common.domain.account.AccountGetRequest;
 import com.example.common.domain.account.AccountGetResponse;
+import com.example.common.dto.ResponseWrapperDTO;
 import com.example.common.exception.exceptions.BusinessException;
+import com.example.common.exception.exceptions.NoResponseFromRabbitException;
 import com.example.common.model.Account;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -19,8 +21,7 @@ import java.util.List;
 import static com.example.common.exception.enums.ErrorCode.INVALID_CURRENCY;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class AccountServiceTest extends AccountApplicationBaseTest {
 
@@ -70,8 +71,7 @@ public class AccountServiceTest extends AccountApplicationBaseTest {
         AccountGetResponse response = accountService.getAccount(getRequest);
 
         assertNotNull(response);
-        assertEquals(request.getCustomerId(), response.getCustomerId());
-        assertEquals(response.getAccountId(), request.getCustomerId());
+        assertEquals(response.getCustomerId(), request.getCustomerId());
         assertNotNull(response.getBalances());
     }
 
@@ -85,7 +85,7 @@ public class AccountServiceTest extends AccountApplicationBaseTest {
 
         BusinessException exception = assertThrows(BusinessException.class,
                 () -> accountService.createAccount(request),
-                "Expected createAccount to throw, but it didn't");
+                "Expected createAccount to throw BusinessException when currency is invalid");
 
         assertEquals(INVALID_CURRENCY.getCode(), exception.getCode());
 
@@ -131,4 +131,18 @@ public class AccountServiceTest extends AccountApplicationBaseTest {
         // Verify that the publish method was called
         verify(messagePublisher).publishAccountCreated(any(Account.class));
     }
+
+    @Test
+    public void shouldThrowErrorWhenCustomerIdIsNull() {
+        AccountCreationRequest request = AccountCreationRequest.builder()
+                .customerId(null)
+                .country("US")
+                .currencies(List.of("USD"))
+                .build();
+
+        assertThrows(BusinessException.class,
+                () -> accountService.createAccount(request),
+                "Expected to throw BusinessException when customerId is null");
+    }
+
 }

@@ -90,7 +90,13 @@ tasks.register('integrationTest', Test) {
     description = 'Runs integration tests across all subprojects.'
     group = 'verification'
 
+    // Ensure the jar tasks for each relevant subproject are completed before this task runs
+    dependsOn subprojects*.tasks*.withType(Jar)
+
     doFirst {
+        // Print a message about starting the build and copy process
+        println "Building and copying artifacts..."
+
         // Perform the copying of artifacts directly within the doFirst action
         project.copy {
             duplicatesStrategy = DuplicatesStrategy.INCLUDE
@@ -117,9 +123,6 @@ tasks.register('integrationTest', Test) {
     })
     useJUnitPlatform()
 }
-
-
-
 
 tasks.register('jacocoRootReport', JacocoReport) {
     description = 'Generates an aggregated report from all subprojects.'

@@ -187,20 +187,35 @@ Response (Get account Transactions - ERROR INVALID ACCOUNT):
 ````
 
 ### Integration Test
-Uses JaCoCo to ensure over 80% test coverage.
+Ensure account service has over 80% test coverage.
+Use Jacoco for test coverage and JUnit for testing.
 As only the account service coverage was required, the integration test is only for the account service.
 To run tests:
 ```bash
 cd account-project/
 ./gradlew integrationTest 
 ./gradlew jacocoRootReport
+./gradlew jacocoTestCoverageVerification
 ```
 ![img.png](img.png)
+To produce reports (though already included in the project):
+```bash
+cd account-project/
+./gradlew jacocoRootReport
+./gradlew jacocoTestCoverageVerification
+```
+Test report available at:
+```bash
+cd account-project/
+start "" build/reports/tests/integrationTest/index.html
+```
+![img_4.png](img_4.png)
 Coverage report available at:
 ```bash
-cd account-project\account\build\reports\jacoco\integrationTest\html
+cd account-project/
+start "" build/reports/jacoco/aggregatedHtml/index.html
 ```
-
+![img_3.png](img_3.png)
 ## Scaling Considerations
 To support horizontal scaling, we could consider implementing load balancers and container orchestration with Kubernetes and Rancher.
 Current microservices are stateless, so scaling should be straightforward. Rabbit MQ **should** prevent concurrency issues.

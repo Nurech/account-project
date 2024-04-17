@@ -21,7 +21,8 @@ public enum ErrorCode {
     INVALID_ACCOUNT("1010", "The specified account is does not exist."),
     NO_TRANSACTIONS("1011", "No transactions found for the specified account."),
     BALANCE_MISSING("1012", "Balance not found for the specified account and currency."),
-    DESCRIPTION_MISSING("1013", "Description is required.");
+    DESCRIPTION_MISSING("1013", "Description is required."),
+    INVALID_CUSTOMER_ID("1014", "Invalid customer ID.");
 
     private final String code;
     private final String message;
