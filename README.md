@@ -44,7 +44,7 @@ account-project/docker-compose.yml
   ```bash
   docker-compose -f docker-compose.yml -p account-project up -d
   ```
-
+![img_2.png](img_2.png)
 ## Applications Overview
 ### Account
 Manages accounts and their balances. Publishes all insert and update operations to RabbitMQ.
@@ -190,8 +190,10 @@ As only the account service coverage was required, the integration test is only 
 To run tests:
 ```bash
 cd account-project/
-./gradlew integrationTest
+./gradlew integrationTest 
+./gradlew jacocoRootReport
 ```
+![img.png](img.png)
 Coverage report available at:
 ```bash
 cd account-project\account\build\reports\jacoco\integrationTest\html
@@ -199,8 +201,8 @@ cd account-project\account\build\reports\jacoco\integrationTest\html
 
 ## Scaling Considerations
 To support horizontal scaling, we could consider implementing load balancers and container orchestration with Kubernetes and Rancher.
-Current microservices are stateless, so scaling should be straightforward. Rabbit MQ should prevent concurrency issues.
-Though there might be issues scaling rabbitMQ itself, but should work with multiple nodes in cluster environment using mirrored queues for high availability. 
+Current microservices are stateless, so scaling should be straightforward. Rabbit MQ **should** prevent concurrency issues.
+Though it might be tricky scaling rabbitMQ itself. But should be doable with multiple nodes in cluster environment using mirrored queues. 
 
 ## Performance
 Stress tests implemented using JMeter indicate transaction handling capabilities; details available in report.
@@ -208,9 +210,11 @@ Though testing results don't reflect actual capabilities, it is limited to due t
 
 ## Error Handling
 Could be improved by implementing DLX, asynchronous error handling with RabbitMQ or by other means,
+if more complex producer consumer scenarios are required,
 but for now ResponseWrapperDTO is used to handle synchronous errors.
 
-## MonoRepo
-MonoRepo structure is used for this project, which is beneficial for managing multiple microservices in a single repository.
+## Considerations
+- MonoRepo structure is used for this project, which is beneficial for managing multiple microservices in a single repository.
 Gradle is used for dependency management, and Docker for containerization.
 Though in production, it is recommended to use separate repositories for each microservice.
+- Microservices Transaction should be implemented is the complexity grows, either with two-phase commit or Saga pattern, to ensure data consistency.

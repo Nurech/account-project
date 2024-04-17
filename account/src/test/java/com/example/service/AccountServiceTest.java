@@ -16,6 +16,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 
 import java.util.List;
 
+import static com.example.common.exception.enums.ErrorCode.INVALID_CURRENCY;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -82,9 +83,11 @@ public class AccountServiceTest extends AccountApplicationBaseTest {
                 .currencies(List.of("USD", "XXX"))
                 .build();
 
-        assertThrows(BusinessException.class,
+        BusinessException exception = assertThrows(BusinessException.class,
                 () -> accountService.createAccount(request),
                 "Expected createAccount to throw, but it didn't");
+
+        assertEquals(INVALID_CURRENCY.getCode(), exception.getCode());
 
         // Verify no account was inserted into the database
         verify(accountMapper, never()).insertAccount(any(Account.class));

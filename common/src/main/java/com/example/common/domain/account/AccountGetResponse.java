@@ -1,6 +1,5 @@
 package com.example.common.domain.account;
 
-import com.example.common.dto.ErrorDTO;
 import com.example.common.model.Balance;
 import lombok.*;
 

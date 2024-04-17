@@ -24,6 +24,22 @@ services:
       - rabbitmq
     ports:
       - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_LIQUIBASE_ENABLED: "true"
+      SPRING_LIQUIBASE_CHANGELOG: classpath:/db/changelog/db.changelog-common.xml
+    healthcheck:
+      test: [ "CMD-SHELL", "curl --silent localhost:8080/actuator/health | jq -e '.status==\"UP\"'" ]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
 
   account:
     build:
@@ -34,6 +50,19 @@ services:
       - common
     ports:
       - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+    healthcheck:
+      test: [ "CMD-SHELL", "curl --silent localhost:8081/actuator/health | jq -e '.status==\"UP\"'" ]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
 
   transaction:
     build:
@@ -45,6 +74,12 @@ services:
       - account
     ports:
       - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
 
   balance:
     build:
@@ -57,3 +92,9 @@ services:
       - transaction
     ports:
       - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672

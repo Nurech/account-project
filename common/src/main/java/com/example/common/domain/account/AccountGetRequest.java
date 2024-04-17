@@ -1,6 +1,5 @@
 package com.example.common.domain.account;
 
-import com.example.common.dto.ErrorDTO;
 import lombok.*;
 
 import java.io.Serializable;
