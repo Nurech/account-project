@@ -42,6 +42,8 @@ account-project/docker-compose.yml
 ````
 - **Docker:** Use the following command to start the services:
   ```bash
+  git clone https://github.com/nurech/account-project.git
+  cd account-project
   docker-compose -f docker-compose.yml -p account-project up -d
   ```
 ![img_2.png](img_2.png)

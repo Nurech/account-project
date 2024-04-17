@@ -71,6 +71,7 @@ public class AccountApplicationBaseTest {
             .withEnv("SPRING_LIQUIBASE_URL", "jdbc:postgresql://postgres:5432/postgres")
             .withEnv("SPRING_LIQUIBASE_USER", "postgres")
             .withEnv("SPRING_LIQUIBASE_PASSWORD", "postgres")
+            .withEnv("SPRING_LIQUIBASE_CHANGELOG", "classpath:/db/changelog/db.changelog-common.xml")
             .waitingFor(new LogMessageWaitStrategy().withRegEx(".*Started CommonApplication.*"))
             .withStartupTimeout(Duration.ofSeconds(60))
             .dependsOn(rabbitMqContainer, postgresqlContainer);

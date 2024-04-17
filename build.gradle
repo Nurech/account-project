@@ -83,16 +83,32 @@ ext {
 }
 
 tasks.register('copyArtifactsForIntegrationTest', Copy) {
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-    from('balance/build/libs') { include '*SNAPSHOT.jar' }
-    from('transaction/build/libs') { include '*SNAPSHOT.jar' }
-    from('common/build/libs') { include '*SNAPSHOT.jar' }
-    into 'account/src/test/resources'
+
 }
 
 tasks.register('integrationTest', Test) {
     description = 'Runs integration tests across all subprojects.'
     group = 'verification'
+
+    doFirst {
+        // Perform the copying of artifacts directly within the doFirst action
+        project.copy {
+            duplicatesStrategy = DuplicatesStrategy.INCLUDE
+            from('balance/build/libs') {
+                include '*SNAPSHOT.jar'
+            }
+            from('transaction/build/libs') {
+                include '*SNAPSHOT.jar'
+            }
+            from('common/build/libs') {
+                include '*SNAPSHOT.jar'
+            }
+            into 'account/src/test/resources'
+        }
+        println "Artifacts copied to 'account/src/test/resources'"
+    }
+
+    // Set up classpaths and test classes directories
     classpath = files(subprojects.collect {
         it.tasks.withType(Test).findByName('test')?.classpath
     })
@@ -101,6 +117,9 @@ tasks.register('integrationTest', Test) {
     })
     useJUnitPlatform()
 }
+
+
+
 
 tasks.register('jacocoRootReport', JacocoReport) {
     description = 'Generates an aggregated report from all subprojects.'
@@ -124,7 +143,6 @@ tasks.register('jacocoRootReport', JacocoReport) {
         }
     }
 }
-
 
 tasks.register('aggregateTestReports') {
     doLast {
