@@ -224,19 +224,35 @@ Though it might be tricky scaling rabbitMQ itself. But should be doable with mul
 ## Performance
 Stress tests implemented using JMeter indicate transaction handling capabilities; details available in report.
 Though testing results don't reflect actual capabilities, it is limited to due to running on a local machine.
-Test ran with 1000 threads, 1000 loops with ramp-up period of 60 seconds.
-From the plot, it is evident that the system can handle a large number of transactions,
-but started failing at around 5000 per second, 
-which is acceptable for a small system but could be improved by optimizing the code and database queries.
 Test params: test machine is a 4-core wIntel i7-7700HQ with 32GB RAM.
 Project was running on docker with 16GB RAM allocated. JVM_OPTS(default)
-```bash
-
+````json
+HTTP / POST / http://localhost:8080/api/transactions {
+    "accountId": 1,
+    "amount": 1.00,
+    "currency": "USD",
+    "transactionDirection": "IN",
+    "description": "Initial deposit"
+}
+````
 See JMeter results and source files in the jmeter folder.
+(Sample is one POST request)
 ```bash
 cd account-project/jmeter/
 ```
+1000 threads, 5 loops, ramp-up 5s
+![img_5.png](img_5.png)
+1500 threads, 5 loops, ramp-up 5s
+![img_8.png](img_8.png)
+2000 threads, 5 loops, ramp-up 5s
+![img_7.png](img_7.png)
+3000 threads, 5 loops, ramp-up 5s
+![img_6.png](img_6.png)
 
+Errors start to appear from ~1500 threads. 
+Bottleneck is RabitMQ, as it's not able to handle as many requests, 
+the queue increases, possible starting to write messages to disk
+and messages start to timeout and are lost. Throughput is in the 60-90 requests per-second range.
 ## Error Handling
 Could be improved by implementing DLX, asynchronous error handling with RabbitMQ or by other means,
 if more complex producer consumer scenarios are required,
@@ -246,4 +262,4 @@ but for now ResponseWrapperDTO is used to handle synchronous errors.
 - MonoRepo structure is used for this project, which is beneficial for managing multiple microservices in a single repository.
 Gradle is used for dependency management, and Docker for containerization.
 Though in production, it is recommended to use separate repositories for each microservice.
-- Microservices Transaction should be implemented is the complexity grows, either with two-phase commit or Saga pattern, to ensure data consistency.
+- Microservices Transaction should be implemented as the complexity grows, either with two-phase commit or Saga pattern, to ensure data consistency.

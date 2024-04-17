@@ -1,0 +1,1 @@
+jmeter -n -t stress_test.jmx -l log.jtl
