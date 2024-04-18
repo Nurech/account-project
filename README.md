@@ -198,15 +198,15 @@ As only the account service coverage was required, the integration test is only 
 To run tests:
 ```bash
 cd account-project/
-./gradlew integrationTest 
+gradlew integrationTest 
 ```
 ![img.png](img.png)
 To produce reports (though already included in the project):
 https://github.com/Nurech/account-project/tree/master/build/reports/jacoco
 ```bash
 cd account-project/
-./gradlew jacocoRootReport
-./gradlew jacocoTestCoverageVerification
+gradlew jacocoRootReport
+gradlew jacocoTestCoverageVerification
 ```
 ![img_4.png](img_4.png)
 Coverage report available at:
