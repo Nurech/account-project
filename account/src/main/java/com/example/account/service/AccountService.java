@@ -54,7 +54,7 @@ public class AccountService {
         account.setCustomerId(request.getCustomerId());
         account.setCountry(request.getCountry());
 
-        // check if currencies are acceptable firstw
+        // Check if currencies are acceptable first
         for (String currency : request.getCurrencies()) {
             if (!currencyService.isCurrencyAllowed(currency)) {
                 throw new BusinessException(INVALID_CURRENCY, "Currency " + currency + " is not allowed.");

@@ -9,9 +9,7 @@ import com.example.common.domain.account.AccountCreationRequest;
 import com.example.common.domain.account.AccountCreationResponse;
 import com.example.common.domain.account.AccountGetRequest;
 import com.example.common.domain.account.AccountGetResponse;
-import com.example.common.dto.ResponseWrapperDTO;
 import com.example.common.exception.exceptions.BusinessException;
-import com.example.common.exception.exceptions.NoResponseFromRabbitException;
 import com.example.common.model.Account;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -25,6 +23,8 @@ import static org.mockito.Mockito.*;
 
 public class AccountServiceTest extends AccountApplicationBaseTest {
 
+    // SpyBean It allows us to create a spy (partial mock) of a Spring bean
+    // while still using the actual bean definition from our application context.
     @SpyBean
     private AccountMessageListener listener;
 
